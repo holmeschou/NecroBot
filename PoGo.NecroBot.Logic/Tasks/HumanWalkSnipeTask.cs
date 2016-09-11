@@ -305,7 +305,8 @@ namespace PoGo.NecroBot.Logic.Tasks
                 FetchFromPokesnipers(lat, lng),
                 FetchFromPokeZZ(lat, lng),
                 FetchFromFastPokemap(lat, lng),
-                FetchFromPokeWatcher(lat, lng)
+                FetchFromPokeWatcher(lat, lng),
+                FetchFromPoke5566(lat, lng)
             };
             if (_setting.HumanWalkingSnipeIncludeDefaultLocation &&
                 LocationUtils.CalculateDistanceInMeters(lat, lng, _session.Settings.DefaultLatitude, _session.Settings.DefaultLongitude) > 1000)
@@ -317,6 +318,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                 allTasks.Add(FetchFromPokeZZ(_session.Settings.DefaultLatitude, _session.Settings.DefaultLongitude));
                 allTasks.Add(FetchFromFastPokemap(_session.Settings.DefaultLatitude, _session.Settings.DefaultLongitude));
                 allTasks.Add(FetchFromPokeWatcher(_session.Settings.DefaultLatitude, _session.Settings.DefaultLongitude));
+                allTasks.Add(FetchFromPoke5566(_session.Settings.DefaultLatitude, _session.Settings.DefaultLongitude));
             }
 
             Task.WaitAll(allTasks.ToArray());
