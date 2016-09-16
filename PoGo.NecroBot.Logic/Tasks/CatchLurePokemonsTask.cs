@@ -1,6 +1,5 @@
 ﻿#region using directives
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using PoGo.NecroBot.Logic.Common;
@@ -11,9 +10,7 @@ using POGOProtos.Map.Fort;
 using POGOProtos.Map.Pokemon;
 using POGOProtos.Networking.Responses;
 using PoGo.NecroBot.Logic.Utils;
-using System.Collections.Generic;
 using System.Linq;
-using PokemonGo.RocketAPI.Extensions;
 
 #endregion
 
@@ -29,7 +26,6 @@ namespace PoGo.NecroBot.Logic.Tasks
             Logger.Write(session.Translation.GetTranslation(TranslationString.LookingForLurePokemon), LogLevel.Debug);
 
             var fortId = currentFortData.Id;
-
             var pokemonId = currentFortData.LureInfo.ActivePokemonId;
 			
             if( ( session.LogicSettings.UsePokemonSniperFilterOnly && !session.LogicSettings.PokemonToSnipe.Pokemon.Contains( pokemonId ) ) ||
@@ -96,29 +92,26 @@ namespace PoGo.NecroBot.Logic.Tasks
             //looking for any lure pokestop neaby
 
             var mapObjects = await session.Client.Map.GetMapObjects();
-            var pokeStops = mapObjects.Item1.MapCells.SelectMany(i => i.Forts)
-                .Where(
-                    i =>
-                        (i.Type == FortType.Checkpoint) &&
-                        i.CooldownCompleteTimestampMs < DateTime.UtcNow.ToUnixTime()
-                );
+            if (session.LogicSettings.EnableHumanWalkingSnipe)
+            {
+                var pokeStops = mapObjects.Item1.MapCells.SelectMany(i => i.Forts)
+                    .Where(
+                        i =>
+                            (i.Type == FortType.Checkpoint || i.Type == FortType.Gym)
+                    );
+                session.AddForts(pokeStops.ToList());
+                session.EventDispatcher.Send(new PokeStopListEvent { Forts = pokeStops.ToList() });
+            }
 
-            session.AddForts(pokeStops.ToList());
-
-           var forts = session.Forts.Where(p=>p.Type == FortType.Checkpoint);
-            List<FortData> luredNearBy = new List<FortData>();
-
+            var forts = session.Forts.Where(p => p.Type == FortType.Checkpoint);
             foreach (FortData fort in forts)
             {
                 var distance =  LocationUtils.CalculateDistanceInMeters(session.Client.CurrentLatitude, session.Client.CurrentLongitude, fort.Latitude, fort.Longitude);
-                if(distance <40 && fort.LureInfo != null)
+                if(distance < 40 && fort.LureInfo != null)
                 {
-                    luredNearBy.Add(fort);
                     await Execute(session, fort, cancellationToken);
                 }
-            };
-
-            
+            };            
         }
     }
 }

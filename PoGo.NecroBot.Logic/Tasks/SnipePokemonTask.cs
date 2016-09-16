@@ -22,6 +22,7 @@ using PoGo.NecroBot.Logic.State;
 using PoGo.NecroBot.Logic.Utils;
 using POGOProtos.Enums;
 using POGOProtos.Inventory.Item;
+using POGOProtos.Map.Fort;
 using POGOProtos.Map.Pokemon;
 using POGOProtos.Networking.Responses;
 using Quobject.Collections.Immutable;
@@ -487,7 +488,16 @@ namespace PoGo.NecroBot.Logic.Tasks
                 });
 
                 var mapObjects = session.Client.Map.GetMapObjects().Result;
-                session.AddForts(mapObjects.Item1.MapCells.SelectMany(p => p.Forts).ToList());
+                if (session.LogicSettings.EnableHumanWalkingSnipe)
+                {
+                    var pokeStops = mapObjects.Item1.MapCells.SelectMany(i => i.Forts)
+                        .Where(
+                            i =>
+                                (i.Type == FortType.Checkpoint || i.Type == FortType.Gym)
+                        );
+                    session.AddForts(pokeStops.ToList());
+                    session.EventDispatcher.Send(new PokeStopListEvent { Forts = pokeStops.ToList() });
+                }
                 catchablePokemon =
                     mapObjects.Item1.MapCells.SelectMany(q => q.CatchablePokemons)
                         .Where(q => pokemonIds.Contains(q.PokemonId))

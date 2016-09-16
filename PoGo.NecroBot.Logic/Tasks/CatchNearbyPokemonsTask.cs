@@ -1,5 +1,6 @@
 ﻿#region using directives
 
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using POGOProtos.Inventory.Item;
 using POGOProtos.Map.Pokemon;
 using POGOProtos.Networking.Responses;
 using POGOProtos.Enums;
+using POGOProtos.Map.Fort;
 
 #endregion
 
@@ -114,7 +116,17 @@ namespace PoGo.NecroBot.Logic.Tasks
         public static async Task<IOrderedEnumerable<MapPokemon>> GetNearbyPokemons(ISession session)
         {
             var mapObjects = await session.Client.Map.GetMapObjects();
-            session.AddForts(mapObjects.Item1.MapCells.SelectMany(p => p.Forts).ToList());
+            if (session.LogicSettings.EnableHumanWalkingSnipe)
+            {
+                var pokeStops = mapObjects.Item1.MapCells.SelectMany(i => i.Forts)
+                    .Where(
+                        i =>
+                            (i.Type == FortType.Checkpoint || i.Type == FortType.Gym)
+                    );
+                session.AddForts(pokeStops.ToList());
+                session.EventDispatcher.Send(new PokeStopListEvent { Forts = pokeStops.ToList() });
+            }
+
             var pokemons = mapObjects.Item1.MapCells.SelectMany(i => i.CatchablePokemons)
                 .OrderBy(
                     i =>

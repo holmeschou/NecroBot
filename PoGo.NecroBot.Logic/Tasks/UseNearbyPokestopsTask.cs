@@ -253,6 +253,8 @@ namespace PoGo.NecroBot.Logic.Tasks
                 pokeStopes = pokeStopes.Where(p => LocationUtils.CalculateDistanceInMeters(p.Latitude, p.Longitude, session.Client.CurrentLatitude, session.Client.CurrentLongitude) < 40).ToList();
             }
 
+            session.EventDispatcher.Send(new PokeStopListEvent { Forts = session.Forts });
+
             if (pokeStopes.Count == 1) return pokeStopes.FirstOrDefault();
 
             if (session.LogicSettings.GymAllowed)
@@ -468,15 +470,14 @@ namespace PoGo.NecroBot.Logic.Tasks
                 .Where(
                     i =>
                         (i.Type == FortType.Checkpoint || i.Type == FortType.Gym) &&
-                        //i.CooldownCompleteTimestampMs < DateTime.UtcNow.ToUnixTime() &&
                         (
                             LocationUtils.CalculateDistanceInMeters(
-                                session.Client.CurrentLatitude, session.Client.CurrentLongitude,
+                                session.Settings.DefaultLatitude, session.Settings.DefaultLongitude,
                                 i.Latitude, i.Longitude) < session.LogicSettings.MaxTravelDistanceInMeters) ||
                         session.LogicSettings.MaxTravelDistanceInMeters == 0
                 );
 
-            session.Forts.Clear();
+            //session.Forts.Clear();
             session.AddForts(pokeStops.ToList());
 
             if (!session.LogicSettings.UseGpxPathing)
