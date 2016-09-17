@@ -142,7 +142,7 @@ namespace PoGo.NecroBot.Logic.Tasks
             pokestopCount++;
             pokestopCount = pokestopCount % 3;
 
-            if (pokestopCount > 0 && !prioritySnipeFlag) return;
+            //if (pokestopCount > 0 && !prioritySnipeFlag) return;
 
             InitSession(session);
             if (!_setting.CatchPokemon && !prioritySnipeFlag) return;
