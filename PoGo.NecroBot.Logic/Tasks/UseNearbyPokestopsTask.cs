@@ -213,7 +213,8 @@ namespace PoGo.NecroBot.Logic.Tasks
             await CatchIncensePokemonsTask.Execute(session, cancellationToken);
 
             // Minor fix google route ignore pokestop
-            if (session.LogicSettings.UseGoogleWalk && 
+            if ((session.LogicSettings.UseGoogleWalk ||
+                session.LogicSettings.UseMapzenWalk) && 
                 !session.LogicSettings.UseYoursWalk && 
                 !session.LogicSettings.UseGpxPathing)
             {
@@ -240,13 +241,42 @@ namespace PoGo.NecroBot.Logic.Tasks
             var pokeStopes = session.Forts.Where(p => p.CooldownCompleteTimestampMs < DateTime.UtcNow.ToUnixTime()).ToList();
             pokeStopes = pokeStopes.OrderBy(
                         p =>
-                            session.Navigation.WalkStrategy.CalculateDistance(
+                            //session.Navigation.WalkStrategy.CalculateDistance(
+                            LocationUtils.CalculateDistanceInMeters(
                                 session.Client.CurrentLatitude,
                                 session.Client.CurrentLongitude,
                                 p.Latitude,
-                                p.Longitude,
-                                session)
+                                p.Longitude)
                                 ).ToList();
+
+            var idxNearestPokeStop = 0;
+            var NearestDistance = 0.0;
+            Logger.Write($"(Holmes) pokeStopes.Count = {pokeStopes.Count}", LogLevel.Info, ConsoleColor.Yellow);
+            for (var i = 0; i < Math.Min(3, pokeStopes.Count); i++)
+            {
+                var CurrentDistanceSt = LocationUtils.CalculateDistanceInMeters(
+                        session.Client.CurrentLatitude,
+                        session.Client.CurrentLongitude,
+                        pokeStopes[i].Latitude,
+                        pokeStopes[i].Longitude);
+
+                var CurrentDistance = session.Navigation.WalkStrategy.CalculateDistance(
+                        session.Client.CurrentLatitude,
+                        session.Client.CurrentLongitude,
+                        pokeStopes[i].Latitude,
+                        pokeStopes[i].Longitude,
+                        session);
+                if (i == 0)
+                    NearestDistance = CurrentDistance;
+
+                if (CurrentDistance < NearestDistance)
+                {
+                    NearestDistance = CurrentDistance;
+                    idxNearestPokeStop = i;
+                }
+                Logger.Write($"(Holmes) currST = {CurrentDistanceSt}, curr = {CurrentDistance}, nearest = {NearestDistance}", LogLevel.Info, ConsoleColor.Yellow);
+            }
+            Logger.Write($"(Holmes) idxNearestPokeStop = {idxNearestPokeStop}", LogLevel.Info, ConsoleColor.Yellow);
 
             if (session.LogicSettings.UseGpxPathing)
             {
@@ -255,20 +285,21 @@ namespace PoGo.NecroBot.Logic.Tasks
 
             session.EventDispatcher.Send(new PokeStopListEvent { Forts = session.Forts });
 
-            if (pokeStopes.Count == 1) return pokeStopes.FirstOrDefault();
+            //if (pokeStopes.Count == 1) return pokeStopes.FirstOrDefault();
 
-            if (session.LogicSettings.GymAllowed)
-            {
-                var gyms = pokeStopes.Where(x => 
-                    x.Type == FortType.Gym &&
-                    LocationUtils.CalculateDistanceInMeters(x.Latitude, x.Longitude, session.Client.CurrentLatitude, session.Client.CurrentLongitude) < session.LogicSettings.GymMaxDistance
-                );
+            //if (session.LogicSettings.GymAllowed)
+            //{
+            //    var gyms = pokeStopes.Where(x => 
+            //        x.Type == FortType.Gym &&
+            //        LocationUtils.CalculateDistanceInMeters(x.Latitude, x.Longitude, session.Client.CurrentLatitude, session.Client.CurrentLongitude) < session.LogicSettings.GymMaxDistance
+            //    );
 
-                //TODO: Why Gym has higher priority?
-                if (gyms.Count() > 0) return gyms.FirstOrDefault();
-            }
+            //    //TODO: Why Gym has higher priority?
+            //    if (gyms.Count() > 0) return gyms.FirstOrDefault();
+            //}
 
-            return pokeStopes.Skip((int)DateTime.Now.Ticks % 2).FirstOrDefault();
+            //return pokeStopes.Skip((int)DateTime.Now.Ticks % 2).FirstOrDefault();
+            return pokeStopes.Skip(idxNearestPokeStop).FirstOrDefault();
         }
 
         public static async Task SpinPokestopNearBy(ISession session, CancellationToken cancellationToken, FortData destinationFort = null)
