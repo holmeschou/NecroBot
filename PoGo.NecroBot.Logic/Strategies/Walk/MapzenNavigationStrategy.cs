@@ -52,30 +52,44 @@ namespace PoGo.NecroBot.Logic.Strategies.Walk
         public override double CalculateDistance(double sourceLat, double sourceLng, double destinationLat, double destinationLng, ISession session = null)
         {
             // Too expensive to calculate true distance.
-            return 1.5 * base.CalculateDistance(sourceLat, sourceLng, destinationLat, destinationLng);
+            //return 1.5 * base.CalculateDistance(sourceLat, sourceLng, destinationLat, destinationLng);
 
-            /*
+            
             if (session != null)
                 GetMapzenInstance(session);
 
             if (_mapzenDirectionsService != null)
             {
-                var mapzenResult = _mapzenDirectionsService.GetDirections(new GeoCoordinate(sourceLat, sourceLng), new GeoCoordinate(destinationLat, destinationLng));
-                if (string.IsNullOrEmpty(mapzenResult) || mapzenResult.StartsWith("<?xml version=\"1.0\"") || mapzenResult.Contains("error"))
+                MapzenWalk mapzenWalk = _mapzenDirectionsService.GetDirections(new GeoCoordinate(sourceLat, sourceLng), new GeoCoordinate(destinationLat, destinationLng));
+                if (mapzenWalk == null)
                 {
                     return 1.5 * base.CalculateDistance(sourceLat, sourceLng, destinationLat, destinationLng);
                 }
                 else
                 {
-                    var mapzenWalk = MapzenWalk.Get(mapzenResult);
-                    return mapzenWalk.Distance;
+                    //There are two ways to get distance value. One is counting from waypoint list.
+                    //The other is getting from google service. The result value is different.
+
+                    ////Count distance from waypoint list
+                    List<GeoCoordinate> points = mapzenWalk.Waypoints;
+                    double distance = 0;
+                    for (var i = 0; i < points.Count; i++)
+                    {
+                        if (i > 0)
+                        {
+                            distance += LocationUtils.CalculateDistanceInMeters(points[i - 1], points[i]);
+                        }
+                    }
+                    return distance;
+
+                    //return mapzenWalk.Distance;
                 }
             }
             else
             {
                 return 1.5 * base.CalculateDistance(sourceLat, sourceLng, destinationLat, destinationLng);
             }
-            */
+            
         }
     }
 }
