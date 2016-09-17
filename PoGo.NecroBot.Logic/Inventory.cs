@@ -18,7 +18,6 @@ using POGOProtos.Inventory;
 using POGOProtos.Inventory.Item;
 using POGOProtos.Networking.Responses;
 using POGOProtos.Settings.Master;
-using Caching;
 
 #endregion
 
@@ -163,7 +162,6 @@ namespace PoGo.NecroBot.Logic
                 var weakPokemonCount = pokemonGroupToTransfer.Count();
                 var canBeRemoved = Math.Min(needToRemove, weakPokemonCount);
 
-
                 var settings = pokemonSettings.Single(x => x.PokemonId == pokemonGroupToTransfer.Key);
                 //Lets calc new canBeRemoved pokemons according to transferring some of them for +1 candy or to evolving for +1 candy
                 if (keepPokemonsThatCanEvolve &&
@@ -182,20 +180,32 @@ namespace PoGo.NecroBot.Logic
                 if (canBeRemoved <= 0)
                     continue;
 
-                if (prioritizeIVoverCp)
+                //if (prioritizeIVoverCp)
+                //{
+                //    results.AddRange(pokemonGroupToTransfer
+                //        .OrderBy(PokemonInfo.CalculatePokemonPerfection)
+                //        .ThenBy(n => n.Cp)
+                //        .Take(canBeRemoved));
+                //}
+                //else
+                //{
+                //    results.AddRange(pokemonGroupToTransfer
+                //        .OrderBy(x => x.Cp)
+                //        .ThenBy(PokemonInfo.CalculatePokemonPerfection)
+                //        .Take(canBeRemoved));
+                //}
+
+                var pokemons = new List<PokemonData>();
+                pokemons.AddRange(pokemonGroupToTransfer);
+                pokemons.Sort(delegate (PokemonData x, PokemonData y)
                 {
-                    results.AddRange(pokemonGroupToTransfer
-                        .OrderBy(PokemonInfo.CalculatePokemonPerfection)
-                        .ThenBy(n => n.Cp)
-                        .Take(canBeRemoved));
-                }
-                else
-                {
-                    results.AddRange(pokemonGroupToTransfer
-                        .OrderBy(x => x.Cp)
-                        .ThenBy(PokemonInfo.CalculatePokemonPerfection)
-                        .Take(canBeRemoved));
-                }
+                    var xv = x.Cp * PokemonInfo.CalculatePokemonPerfection(x);
+                    var xy = y.Cp * PokemonInfo.CalculatePokemonPerfection(y);
+                    if (xv == xy) return 0;
+                    if (xv > xy) return 1;
+                    else return -1;
+                });
+                results.AddRange(pokemons.Take(canBeRemoved));
             }
 
             #region For testing
@@ -406,6 +416,7 @@ namespace PoGo.NecroBot.Logic
                 inventory.InventoryDelta.InventoryItems.Select(i => i.InventoryItemData?.PokemonData)
                     .Where(p => p != null && p.PokemonId > 0);
         }
+
         public async Task<IEnumerable<PokemonData>> GetFaveriotPokemon()
         {
             var inventory = await GetPokemons();
