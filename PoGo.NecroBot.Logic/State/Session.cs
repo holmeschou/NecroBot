@@ -13,6 +13,7 @@ using POGOProtos.Map.Fort;
 using System;
 using PokemonGo.RocketAPI.Extensions;
 using PoGo.NecroBot.Logic.Model;
+using System.Threading.Tasks;
 
 #endregion
 
@@ -33,6 +34,8 @@ namespace PoGo.NecroBot.Logic.State
         ElevationService ElevationService { get; }
         List<FortData> Forts { get; set; }
         void AddForts(List<FortData> mapObjects);
+        Task<bool> WaitUntilActionAccept(BotActions action, int timeout = 30000);
+        List<BotActions> Actions { get; }
     }
 
 
@@ -40,9 +43,9 @@ namespace PoGo.NecroBot.Logic.State
     {
         public Session(ISettings settings, ILogicSettings logicSettings) : this(settings, logicSettings, Common.Translation.Load(logicSettings))
         {
-           
-        }
 
+        }
+        public List<BotActions> Actions { get { return this.botActions; } }
         public Session(ISettings settings, ILogicSettings logicSettings, ITranslation translation)
         {
             Forts = new List<FortData>();
@@ -54,9 +57,9 @@ namespace PoGo.NecroBot.Logic.State
 
             // Update current altitude before assigning settings.
             settings.DefaultAltitude = ElevationService.GetElevation(settings.DefaultLatitude, settings.DefaultLongitude);
-            
+
             Settings = settings;
-            
+
             Translation = translation;
             Reset(settings, LogicSettings);
             Stats = new SessionStats();
@@ -80,11 +83,12 @@ namespace PoGo.NecroBot.Logic.State
         public IEventDispatcher EventDispatcher { get; }
 
         public TelegramService Telegram { get; set; }
-        
+
         public SessionStats Stats { get; set; }
 
         public ElevationService ElevationService { get; }
 
+        private List<BotActions> botActions = new List<BotActions>();
         public void Reset(ISettings settings, ILogicSettings logicSettings)
         {
             ApiFailureStrategy _apiStrategy = new ApiFailureStrategy(this);
@@ -103,5 +107,18 @@ namespace PoGo.NecroBot.Logic.State
             Forts.AddRange(data.Where(x => (x.Type == FortType.Checkpoint || x.Type == FortType.Gym)));
         }
 
+        public async Task<bool> WaitUntilActionAccept(BotActions action, int timeout = 30000)
+        {
+            if (botActions.Count == 0) return true;
+            var waitTimes = 0;
+            while (true && waitTimes < timeout)
+            {
+                if (botActions.Count == 0) return true;
+                ///implement logic of action dependent
+                waitTimes += 1000;
+                await Task.Delay(1000);
+            }
+            return false; //timedout
+        }
     }
 }

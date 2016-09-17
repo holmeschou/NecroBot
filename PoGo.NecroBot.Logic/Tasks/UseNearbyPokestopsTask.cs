@@ -16,6 +16,7 @@ using PokemonGo.RocketAPI.Extensions;
 using POGOProtos.Map.Fort;
 using POGOProtos.Networking.Responses;
 using PoGo.NecroBot.Logic.Event.Gym;
+using PoGo.NecroBot.Logic.Model;
 
 #endregion
 
@@ -68,7 +69,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                 {
                     if (session.Stats.PokeStopTimestamps[i] < TSminus24h)
                     {
-                        Console.WriteLine("Removing stored Pokestop timestamp {0}", session.Stats.PokeStopTimestamps[i]);
+                        Logger.Write($"Removing stored Pokestop timestamp {session.Stats.PokeStopTimestamps[i]}", LogLevel.Info);
                         session.Stats.PokeStopTimestamps.Remove(session.Stats.PokeStopTimestamps[i]);
                     }
                 }
@@ -120,12 +121,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                     (CatchPokemonTask._catchPokemonLimitReached || CatchPokemonTask._catchPokemonTimerReached))
                     return;
 
-                if (session.LogicSettings.ActivateMSniper)
-                {
-                    await MSniperServiceTask.CheckMSniper(session, cancellationToken);
-                }
-
-                var fortInfo = pokeStop.Id == SetMoveToTargetTask.TARGET_ID ? SetMoveToTargetTask.FortInfo : await session.Client.Fort.GetFort(pokeStop.Id, pokeStop.Latitude, pokeStop.Longitude);
+					var fortInfo = pokeStop.Id == SetMoveToTargetTask.TARGET_ID ? SetMoveToTargetTask.FortInfo : await session.Client.Fort.GetFort(pokeStop.Id, pokeStop.Latitude, pokeStop.Longitude);
 
                 await WalkingToPokeStop(session, cancellationToken, pokeStop, fortInfo);
 
@@ -168,33 +164,16 @@ namespace PoGo.NecroBot.Logic.Tasks
                     session
                 );
 
-                session.EventDispatcher.Send(new FortTargetEvent
-                {
-                    Name = fortInfo.Name,
-                    Distance = distance,
-                    Route = session.Navigation.GetStrategy(session.LogicSettings).GetWalkStrategyId()
-                });
-
-                // Always set the fort info in base walk strategy.
-                BaseWalkStrategy.FortInfo = fortInfo;
-
-                var pokeStopDestination = new GeoCoordinate(pokeStop.Latitude, pokeStop.Longitude,
-                    LocationUtils.getElevation(session, pokeStop.Latitude, pokeStop.Longitude));
-
-                if (pokeStop.Type == FortType.Gym)
-                {
-                    session.EventDispatcher.Send(new GymWalkToTargetEvent()
-                    {
-                        Name = fortInfo.Name,
-                        Distance = distance,
-                        Latitude = fortInfo.Latitude,
-                        Longitude = fortInfo.Longitude
-                    });
-                }
+                var pokeStopDestination = new FortLocation(pokeStop.Latitude, pokeStop.Longitude,
+                    LocationUtils.getElevation(session, pokeStop.Latitude, pokeStop.Longitude), pokeStop, fortInfo);
 
                 await session.Navigation.Move(pokeStopDestination,
                     async () =>
                     {
+                        if (session.LogicSettings.ActivateMSniper)
+                        {
+                            await MSniperServiceTask.Execute(session, cancellationToken);
+                        }
                         await OnWalkingToPokeStopOrGym(session, pokeStop, cancellationToken);
                     },
                     session,
@@ -287,11 +266,12 @@ namespace PoGo.NecroBot.Logic.Tasks
 
             //if (pokeStopes.Count == 1) return pokeStopes.FirstOrDefault();
 
-            //if (session.LogicSettings.GymAllowed)
+            //if (session.LogicSettings.GymAllowed && session.Inventory.GetPlayerStats().Result.FirstOrDefault().Level > 5)
             //{
             //    var gyms = pokeStopes.Where(x => 
             //        x.Type == FortType.Gym &&
-            //        LocationUtils.CalculateDistanceInMeters(x.Latitude, x.Longitude, session.Client.CurrentLatitude, session.Client.CurrentLongitude) < session.LogicSettings.GymMaxDistance
+            //        LocationUtils.CalculateDistanceInMeters(x.Latitude, x.Longitude, session.Client.CurrentLatitude, session.Client.CurrentLongitude) < session.LogicSettings.GymMaxDistance &&
+			//        x.CooldownCompleteTimestampMs < DateTime.UtcNow.ToUnixTime());
             //    );
 
             //    //TODO: Why Gym has higher priority?
