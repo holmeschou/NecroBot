@@ -90,14 +90,10 @@ namespace PoGo.NecroBot.Logic.Strategies.Walk
             // If we need to fall-back, then blacklist current strategy for 1 hour.
             session.Navigation.BlacklistStrategy(this.GetType());
 
-            //IWalkStrategy nextStrategy = session.Navigation.GetStrategy(logicSettings);
+            IWalkStrategy nextStrategy = session.Navigation.GetStrategy(logicSettings);
             session.Navigation.WalkStrategy = session.Navigation.GetStrategy(logicSettings);
-            session.Navigation.WalkStrategy.UpdatePositionEvent +=
-                (lat, lng) => session.EventDispatcher.Send(new UpdatePositionEvent { Latitude = lat, Longitude = lng });
-            //TODO: SaveLocationToDisk is defined in Program.cs
-            //session.Navigation.WalkStrategy.UpdatePositionEvent += SaveLocationToDisk;
 
-            return session.Navigation.WalkStrategy.Walk(targetLocation, functionExecutedWhileWalking, session, cancellationToken);
+            return nextStrategy.Walk(targetLocation, functionExecutedWhileWalking, session, cancellationToken);
         }
 
         public async Task<PlayerUpdateResponse> DoWalk(List<GeoCoordinate> points, ISession session, Func<Task> functionExecutedWhileWalking, GeoCoordinate sourceLocation, GeoCoordinate targetLocation, CancellationToken cancellationToken, double walkSpeed = 0.0)

@@ -266,17 +266,17 @@ namespace PoGo.NecroBot.Logic.Tasks
 
             //if (pokeStopes.Count == 1) return pokeStopes.FirstOrDefault();
 
-            //if (session.LogicSettings.GymAllowed && session.Inventory.GetPlayerStats().Result.FirstOrDefault().Level > 5)
-            //{
-            //    var gyms = pokeStopes.Where(x => 
-            //        x.Type == FortType.Gym &&
-            //        LocationUtils.CalculateDistanceInMeters(x.Latitude, x.Longitude, session.Client.CurrentLatitude, session.Client.CurrentLongitude) < session.LogicSettings.GymMaxDistance &&
-			//        x.CooldownCompleteTimestampMs < DateTime.UtcNow.ToUnixTime());
-            //    );
+            if (session.LogicSettings.GymAllowed && session.Inventory.GetPlayerStats().Result.FirstOrDefault().Level > 5)
+            {
+                var gyms = pokeStopes.Where(x =>
+                    x.Type == FortType.Gym &&
+                    LocationUtils.CalculateDistanceInMeters(x.Latitude, x.Longitude, session.Client.CurrentLatitude, session.Client.CurrentLongitude) < session.LogicSettings.GymMaxDistance &&
+                    x.CooldownCompleteTimestampMs < DateTime.UtcNow.ToUnixTime()
+                );
 
-            //    //TODO: Why Gym has higher priority?
-            //    if (gyms.Count() > 0) return gyms.FirstOrDefault();
-            //}
+                //TODO: Why Gym has higher priority?
+                if (gyms.Count() > 0) return gyms.FirstOrDefault();
+            }
 
             //return pokeStopes.Skip((int)DateTime.Now.Ticks % 2).FirstOrDefault();
             return pokeStopes.Skip(idxNearestPokeStop).FirstOrDefault();

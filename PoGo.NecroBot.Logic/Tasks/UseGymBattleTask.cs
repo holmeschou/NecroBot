@@ -69,7 +69,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                         }
                         else
                         {
-                            //await StartGymAttackLogic(session, fortInfo, fortDetails, gym, cancellationToken);
+                            await StartGymAttackLogic(session, fortInfo, fortDetails, gym, cancellationToken);
                             Logger.Write($"No action... This gym is defending by other color", LogLevel.Gym, ConsoleColor.White);
                         }
                     }
@@ -89,6 +89,7 @@ namespace PoGo.NecroBot.Logic.Tasks
         private static async Task StartGymAttackLogic(ISession session, FortDetailsResponse fortInfo,
             GetGymDetailsResponse fortDetails, FortData gym, CancellationToken cancellationToken)
         {
+            Logger.Write($"(Holmes) StartGymAttackLogic", LogLevel.Info, ConsoleColor.Yellow);
             bool fighting = true;
             var badassPokemon = await session.Inventory.GetHighestCpForGym(6);
             var pokemonDatas = badassPokemon as PokemonData[] ?? badassPokemon.ToArray();
@@ -169,6 +170,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         private static async Task DeployPokemonToGym(ISession session, FortDetailsResponse fortInfo, GetGymDetailsResponse fortDetails)
         {
+            Logger.Write($"(Holmes) DeployPokemonToGym", LogLevel.Info, ConsoleColor.Yellow);
             var maxCount = 0;
             var points = fortDetails.GymState.FortData.GymPoints;
             if (points < 1600) maxCount = 1;
@@ -209,6 +211,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         public static async Task RevivePokemon(ISession session, PokemonData pokemon)
         {
+            Logger.Write($"(Holmes) RevivePokemon", LogLevel.Info, ConsoleColor.Yellow);
             var normalRevives = await session.Inventory.GetItemAmountByType(ItemId.ItemRevive);
             if (normalRevives > 0 && pokemon.Stamina <= 0)
             {
@@ -266,6 +269,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         public static async Task HealPokemon(ISession session, PokemonData pokemon)
         {
+            Logger.Write($"(Holmes) HealPokemon", LogLevel.Info, ConsoleColor.Yellow);
             var normalPotions = await session.Inventory.GetItemAmountByType(ItemId.ItemPotion);
             while (normalPotions > 0 && (pokemon.Stamina < pokemon.StaminaMax))
             {
@@ -388,6 +392,7 @@ namespace PoGo.NecroBot.Logic.Tasks
         // ReSharper disable once UnusedParameter.Local
         private static async Task AttackGym(ISession session, CancellationToken cancellationToken, FortData currentFortData, StartGymBattleResponse startResponse)
         {
+            Logger.Write($"(Holmes) AttackGym", LogLevel.Info, ConsoleColor.Yellow);
             long serverMs = startResponse.BattleLog.BattleStartTimestampMs;
             var lastActions = startResponse.BattleLog.BattleActions.ToList();
 
@@ -480,12 +485,14 @@ namespace PoGo.NecroBot.Logic.Tasks
         private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         public static DateTime DateTimeFromUnixTimestampMillis(long millis)
         {
+            Logger.Write($"(Holmes) DateTimeFromUnixTimestampMillis", LogLevel.Info, ConsoleColor.Yellow);
             return UnixEpoch.AddMilliseconds(millis);
         }
 
         private static int _pos;
         public static List<BattleAction> GetActions(long serverMs, PokemonData attacker, int energy)
         {
+            Logger.Write($"(Holmes) GetActions", LogLevel.Info, ConsoleColor.Yellow);
             Random rnd = new Random();
             List<BattleAction> actions = new List<BattleAction>();
             DateTime now = DateTimeFromUnixTimestampMillis(serverMs);
@@ -566,6 +573,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         private static async Task<StartGymBattleResponse> StartBattle(ISession session, IEnumerable<PokemonData> pokemons, FortData currentFortData)
         {
+            Logger.Write($"(Holmes) StartBattle", LogLevel.Info, ConsoleColor.Yellow);
             IEnumerable<PokemonData> currentPokemons = pokemons;
             var gymInfo = await session.Client.Fort.GetGymDetails(currentFortData.Id, currentFortData.Latitude, currentFortData.Longitude);
             if (gymInfo.Result != GetGymDetailsResponse.Types.Result.Success)
@@ -579,8 +587,9 @@ namespace PoGo.NecroBot.Logic.Tasks
             Logger.Write(
                 $"Attacking Gym: {gymInfo.Name}, DefendingPokemons:\n{ string.Join("\n", gymInfo.GymState.Memberships.Select(p => p.PokemonData.PokemonId).ToList()) }, \nAttacking: { gymInfo.GymState.Memberships.First().PokemonData.PokemonId }"
                 );
+            Logger.Write($"(Holmes) StartBattle {currentFortData.Id}, {defendingPokemon}, {attackingPokemonIds}", LogLevel.Info, ConsoleColor.Yellow);
             var result = await session.Client.Fort.StartGymBattle(currentFortData.Id, defendingPokemon, attackingPokemonIds);
-
+            Logger.Write($"(Holmes) get result", LogLevel.Info, ConsoleColor.Yellow);
             if (result.Result == StartGymBattleResponse.Types.Result.Success)
             {
                 switch (result.BattleLog.State)
@@ -623,6 +632,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         private static async Task EnsureJoinTeam(ISession session, PlayerData player)
         {
+            Logger.Write($"(Holmes) EnsureJoinTeam", LogLevel.Info, ConsoleColor.Yellow);
             if (session.Profile.PlayerData.Team == TeamColor.Neutral)
             {
                 var defaultTeam = session.LogicSettings.GymDefaultTeam;
@@ -642,6 +652,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         private bool CanVisitGym()
         {
+            Logger.Write($"(Holmes) CanVisitGym", LogLevel.Info, ConsoleColor.Yellow);
             return true;
         }
 
@@ -649,6 +660,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         private static async Task<PokemonData> GetDeployablePokemon(ISession session)
         {
+            Logger.Write($"(Holmes) GetDeployablePokemon", LogLevel.Info, ConsoleColor.Yellow);
             var pokemonList = (await session.Inventory.GetPokemons()).ToList();
             pokemonList = pokemonList.OrderByDescending(p => p.Cp).Skip(Math.Min(pokemonList.Count - 1, session.LogicSettings.GymNumberOfTopPokemonToBeExcluded)).ToList();
 
