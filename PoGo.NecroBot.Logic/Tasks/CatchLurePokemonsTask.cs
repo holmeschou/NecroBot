@@ -52,8 +52,11 @@ namespace PoGo.NecroBot.Logic.Tasks
 						PokemonId = currentFortData.LureInfo.ActivePokemonId,
 						SpawnPointId = currentFortData.Id
 					};
-					
-                    await CatchPokemonTask.Execute(session, cancellationToken, encounter, pokemon, currentFortData, encounterId);
+
+                    // Catch the Pokemon
+                    await CatchPokemonTask.Execute(session, cancellationToken, encounter, pokemon, 
+                        currentFortData, sessionAllowTransfer: true);
+
                 }
                 else if (encounter.Result == DiskEncounterResponse.Types.Result.PokemonInventoryFull)
                 {
@@ -89,7 +92,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         public static async Task Execute(ISession session, CancellationToken cancellationToken)     
         {
-            //looking for any lure pokestop neaby
+            // Looking for any lure pokestop neaby
 
             var mapObjects = await session.Client.Map.GetMapObjects();
             if (session.LogicSettings.EnableHumanWalkingSnipe)

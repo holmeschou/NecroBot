@@ -91,7 +91,7 @@ namespace PoGo.NecroBot.Logic.Strategies.Walk
             session.Navigation.BlacklistStrategy(this.GetType());
 
             IWalkStrategy nextStrategy = session.Navigation.GetStrategy(logicSettings);
-            session.Navigation.WalkStrategy = session.Navigation.GetStrategy(logicSettings);
+            session.Navigation.WalkStrategy = nextStrategy;
 
             return nextStrategy.Walk(targetLocation, functionExecutedWhileWalking, session, cancellationToken);
         }
