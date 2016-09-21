@@ -94,8 +94,6 @@ namespace PoGo.NecroBot.CLI
             if (!_ignoreKillSwitch && CheckKillSwitch() || CheckMKillSwitch())
                 return;
 
-
-
             var profilePath = Path.Combine(Directory.GetCurrentDirectory(), _subPath);
             var profileConfigPath = Path.Combine(profilePath, "config");
             var configFile = Path.Combine(profileConfigPath, "config.json");
@@ -255,7 +253,8 @@ namespace PoGo.NecroBot.CLI
 
             _session.EventDispatcher.EventReceived += evt => listener.Listen(evt, _session);
             _session.EventDispatcher.EventReceived += evt => aggregator.Listen(evt, _session);
-            _session.EventDispatcher.EventReceived += evt => snipeEventListener.Listen(evt, _session);
+            if (_session.LogicSettings.EnableHumanWalkingSnipe)
+                _session.EventDispatcher.EventReceived += evt => snipeEventListener.Listen(evt, _session);
             
             ProgressBar.Fill(70);
 
