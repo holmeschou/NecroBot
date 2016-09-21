@@ -61,6 +61,7 @@ namespace PoGo.NecroBot.Logic.Interfaces.Configuration
         int ForceGreatThrowOverCp { get; }
         int ForceExcellentThrowOverCp { get; }
         int DelayBetweenPokemonUpgrade { get; }
+        int DelayBetweenPokemonCatch { get; }
         bool AutomaticallyLevelUpPokemon { get; }
         bool OnlyUpgradeFavorites { get; }
         bool UseLevelUpList { get; }

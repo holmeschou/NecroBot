@@ -91,10 +91,8 @@ namespace PoGo.NecroBot.CLI
 
             Logger.SetLogger(new ConsoleLogger(LogLevel.Service), _subPath);
 
-            if (!_ignoreKillSwitch && CheckKillSwitch() || CheckMKillSwitch())
-                return;
-
-
+            //if (!_ignoreKillSwitch && CheckKillSwitch() || CheckMKillSwitch())
+            //    return;
 
             var profilePath = Path.Combine(Directory.GetCurrentDirectory(), _subPath);
             var profileConfigPath = Path.Combine(profilePath, "config");
@@ -108,7 +106,7 @@ namespace PoGo.NecroBot.CLI
                 // Load the settings from the config file
                 // If the current program is not the latest version, ensure we skip saving the file after loading
                 // This is to prevent saving the file with new options at their default values so we can check for differences
-                settings = GlobalSettings.Load(_subPath, !VersionCheckState.IsLatest(), _enableJsonValidation);
+                settings = GlobalSettings.Load(_subPath, false, _enableJsonValidation);
             }
             else
             {
@@ -255,7 +253,8 @@ namespace PoGo.NecroBot.CLI
 
             _session.EventDispatcher.EventReceived += evt => listener.Listen(evt, _session);
             _session.EventDispatcher.EventReceived += evt => aggregator.Listen(evt, _session);
-            _session.EventDispatcher.EventReceived += evt => snipeEventListener.Listen(evt, _session);
+            if (_session.LogicSettings.EnableHumanWalkingSnipe)
+                _session.EventDispatcher.EventReceived += evt => snipeEventListener.Listen(evt, _session);
             
             ProgressBar.Fill(70);
 

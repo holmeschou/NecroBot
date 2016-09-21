@@ -1,5 +1,4 @@
-﻿using GeoCoordinatePortable;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using PoGo.NecroBot.Logic.Common;
 using PoGo.NecroBot.Logic.Event;
 using PoGo.NecroBot.Logic.Interfaces.Configuration;
@@ -7,22 +6,15 @@ using PoGo.NecroBot.Logic.Logging;
 using PoGo.NecroBot.Logic.Model;
 using PoGo.NecroBot.Logic.Model.Settings;
 using PoGo.NecroBot.Logic.State;
-using PoGo.NecroBot.Logic.Strategies.Walk;
 using PoGo.NecroBot.Logic.Utils;
 using POGOProtos.Enums;
 using POGOProtos.Inventory.Item;
 using POGOProtos.Map.Fort;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using WebSocket4Net;
 
 namespace PoGo.NecroBot.Logic.Tasks
 {
@@ -69,6 +61,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         public static async Task AddSnipePokemon(string source, PokemonId id, double latitude, double longitude, DateTime expirationTimestamp, double iV = 0, ISession session = null)
         {
+            Logger.Write($"(Holmes) AddSnipePokemon", LogLevel.Info, ConsoleColor.Red);
             if (session != null)
             {
                 InitSession(session);
@@ -92,6 +85,7 @@ namespace PoGo.NecroBot.Logic.Tasks
         public static async Task<bool> CheckPokeballsToSnipe(int minPokeballs, ISession session,
             CancellationToken cancellationToken)
         {
+            Logger.Write($"(Holmes) CheckPokeballsToSnipe", LogLevel.Info, ConsoleColor.Red);
             cancellationToken.ThrowIfCancellationRequested();
 
             // Refresh inventory so that the player stats are fresh
@@ -116,7 +110,11 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         public static async Task ExecuteFetchData(ISession session)
         {
+            Logger.Write($"(Holmes) ExecuteFetchData", LogLevel.Info, ConsoleColor.Red);
             InitSession(session);
+
+            if (!_setting.EnableHumanWalkingSnipe)
+                return;
 
             await FetchData(_session.Client.CurrentLatitude, _session.Client.CurrentLongitude, true);
         }
@@ -131,6 +129,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         public static List<SnipePokemonInfo> ApplyFilter(List<SnipePokemonInfo> source)
         {
+            Logger.Write($"(Holmes) ApplyFilter", LogLevel.Info, ConsoleColor.Red);
             return source.Where(p => !p.IsVisited
             && !p.IsFake
             && p.ExpiredTime > DateTime.Now.AddSeconds(p.EstimatedTime))
@@ -139,6 +138,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         public static async Task Execute(ISession session, CancellationToken cancellationToken, FortData originalPokestop)
         {
+            Logger.Write($"(Holmes) Execute", LogLevel.Info, ConsoleColor.Red);
             pokestopCount++;
             pokestopCount = pokestopCount % 3;
 
@@ -244,6 +244,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         private static async Task WalkingBackGPXPath(ISession session, CancellationToken cancellationToken, FortData originalPokestop)
         {
+            Logger.Write($"(Holmes) WalkingBackGPXPath", LogLevel.Info, ConsoleColor.Red);
             var destination = new FortLocation(originalPokestop.Latitude, originalPokestop.Longitude,
                          LocationUtils.getElevation(session, originalPokestop.Latitude, originalPokestop.Longitude), originalPokestop, null);
             await session.Navigation.Move(destination,
@@ -262,6 +263,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         private static async Task UpdateFarmingPokestop(ISession session, CancellationToken cancellationToken)
         {
+            Logger.Write($"(Holmes) UpdateFarmingPokestop", LogLevel.Info, ConsoleColor.Red);
             cancellationToken.ThrowIfCancellationRequested();
 
             var nearestStop = session.Forts.OrderBy(i =>
@@ -287,6 +289,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         private static async Task ActionsWhenTravelToSnipeTarget(ISession session, CancellationToken cancellationToken, SnipePokemonInfo pokemon, bool allowCatchPokemon, bool allowSpinPokeStop)
         {
+            Logger.Write($"(Holmes) ActionsWhenTravelToSnipeTarget", LogLevel.Info, ConsoleColor.Red);
             var distance = LocationUtils.CalculateDistanceInMeters(pokemon.Latitude, pokemon.Longitude, session.Client.CurrentLatitude, session.Client.CurrentLongitude);
 
             if (allowCatchPokemon && distance > 50.0)
@@ -303,6 +306,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         static void CalculateDistanceAndEstTime(SnipePokemonInfo p)
         {
+            Logger.Write($"(Holmes) CalculateDistanceAndEstTime", LogLevel.Info, ConsoleColor.Red);
             double speed = p.Setting.AllowSpeedUp ? p.Setting.MaxSpeedUpSpeed : _setting.WalkingSpeedInKilometerPerHour;
             var speedInMetersPerSecond = speed / 3.6;
 
@@ -313,6 +317,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         private static async Task<SnipePokemonInfo> GetNextSnipeablePokemon(double lat, double lng, bool refreshData = true)
         {
+            Logger.Write($"(Holmes) GetNextSnipeablePokemon", LogLevel.Info, ConsoleColor.Red);
             if (refreshData)
             {
                 await FetchData(lat, lng);
@@ -346,6 +351,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         private static async Task FetchData(double lat, double lng, bool silent = false)
         {
+            Logger.Write($"(Holmes) FetchData", LogLevel.Info, ConsoleColor.Red);
             if (lastUpdated > DateTime.Now.AddSeconds(-30) && !silent) return;
 
             if (lastUpdated < DateTime.Now.AddSeconds(-30) && silent && rarePokemons != null && rarePokemons.Count > 0)
@@ -401,6 +407,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         private static async Task PostProcessDataFetched(IEnumerable<SnipePokemonInfo> pokemons, bool displayList = true)
         {
+            Logger.Write($"(Holmes) PostProcessDataFetched", LogLevel.Info, ConsoleColor.Red);
             var rw = new Random();
             var speedInMetersPerSecond = _setting.WalkingSpeedInKilometerPerHour / 3.6;
             int count = 0;
@@ -437,7 +444,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
                     CalculateDistanceAndEstTime(item);
 
-                    if (item.Distance < 10000 && item.Distance != 0)  //only add if distance <10km
+                    if (item.Distance < item.Setting.MaxDistance && item.Distance != 0)
                     {
                         rarePokemons.Add(item);
                     }
@@ -491,6 +498,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         public static Task PriorityPokemon(ISession session, string id)
         {
+            Logger.Write($"(Holmes) PriorityPokemon", LogLevel.Info, ConsoleColor.Red);
             return Task.Run(() =>
             {
                 var pokemonItem = rarePokemons.FirstOrDefault(p => p.UniqueId == id);
@@ -503,11 +511,13 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         public static Task<List<SnipePokemonInfo>> GetCurrentQueueItems(ISession session)
         {
+            Logger.Write($"(Holmes) GetCurrentQueueItems", LogLevel.Info, ConsoleColor.Red);
             return Task.FromResult(rarePokemons);
         }
 
         public static Task TargetPokemonSnip(ISession session, string id)
         {
+            Logger.Write($"(Holmes) TargetPokemonSnip", LogLevel.Info, ConsoleColor.Red);
             return Task.Run(() =>
             {
                 var ele = rarePokemons.FirstOrDefault(p => p.UniqueId == id);
@@ -527,14 +537,18 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         public static double CalculateDistanceInMeters(double sourceLat, double sourceLng, double destinationLat, double destinationLng)
         {
-            if (LocationUtils.CalculateDistanceInMeters(sourceLat, sourceLng, destinationLat, destinationLng) > 10000)
+            Logger.Write($"(Holmes) CalculateDistanceInMeters", LogLevel.Info, ConsoleColor.Red);
+            var distance = LocationUtils.CalculateDistanceInMeters(sourceLat, sourceLng, destinationLat, destinationLng);
+            if (distance > 2000)
                 return 0;
             else
-                return _session.Navigation.WalkStrategy.CalculateDistance(sourceLat, sourceLng, destinationLat, destinationLng);
+                //return _session.Navigation.WalkStrategy.CalculateDistance(sourceLat, sourceLng, destinationLat, destinationLng);
+                return distance;
         }
 
         public static void UpdateCatchPokemon(double latitude, double longitude, PokemonId id)
         {
+            Logger.Write($"(Holmes) UpdateCatchPokemon", LogLevel.Info, ConsoleColor.Red);
             bool exist = false;
             rarePokemons.ForEach((p) =>
             {
@@ -574,6 +588,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         public static Task RemovePokemonFromQueue(ISession session, string id)
         {
+            Logger.Write($"(Holmes) RemovePokemonFromQueue", LogLevel.Info, ConsoleColor.Red);
             return Task.Run(() =>
             {
                 var ele = rarePokemons.FirstOrDefault(p => p.UniqueId == id);

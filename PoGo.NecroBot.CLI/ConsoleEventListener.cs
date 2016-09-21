@@ -208,7 +208,7 @@ namespace PoGo.NecroBot.CLI
                 pokemonCaptureEvent.Distance.ToString("F2"),
                 returnRealBallName(pokemonCaptureEvent.Pokeball), pokemonCaptureEvent.BallAmount,
                 pokemonCaptureEvent.Exp, familyCandies, pokemonCaptureEvent.Latitude.ToString("0.000000"), pokemonCaptureEvent.Longitude.ToString("0.000000"),
-                pokemonCaptureEvent.Move1, pokemonCaptureEvent.Move2  , pokemonCaptureEvent.Rarity
+                pokemonCaptureEvent.Move1, pokemonCaptureEvent.Move2, pokemonCaptureEvent.Rarity
                );
                 Logger.Write(message, LogLevel.Caught);
             }
@@ -219,11 +219,16 @@ namespace PoGo.NecroBot.CLI
                 pokemonCaptureEvent.Distance.ToString("F2"),
                 returnRealBallName(pokemonCaptureEvent.Pokeball), pokemonCaptureEvent.BallAmount,
                 pokemonCaptureEvent.Latitude.ToString("0.000000"), pokemonCaptureEvent.Longitude.ToString("0.000000"),
-                pokemonCaptureEvent.Move1,pokemonCaptureEvent.Move2  , pokemonCaptureEvent.Rarity
+                pokemonCaptureEvent.Move1, pokemonCaptureEvent.Move2, pokemonCaptureEvent.Rarity
                );
                 Logger.Write(message, LogLevel.Flee);
             }
 
+        }
+
+        private static void HandleEvent(EncounteredEvent pokemonEncounteredEvent, ISession session)
+        {
+            Logger.Write($"Meet {session.Translation.GetPokemonTranslation(pokemonEncounteredEvent.PokemonId)} Level:{pokemonEncounteredEvent.Level} IV:{pokemonEncounteredEvent.IV.ToString("0.00")} at {pokemonEncounteredEvent.Latitude.ToString("0.000000")}, {pokemonEncounteredEvent.Longitude.ToString("0.000000")}", LogLevel.Info);
         }
 
         private static void HandleEvent(NoPokeballEvent noPokeballEvent, ISession session)

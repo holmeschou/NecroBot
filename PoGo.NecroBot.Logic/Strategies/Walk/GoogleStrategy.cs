@@ -55,17 +55,17 @@ namespace PoGo.NecroBot.Logic.Strategies.Walk
         public override double CalculateDistance(double sourceLat, double sourceLng, double destinationLat, double destinationLng, ISession session = null)
         {
             // Too expensive to calculate true distance.
-            return 1.5 * base.CalculateDistance(sourceLat, sourceLng, destinationLat, destinationLng);
+            //return 1.5 * base.CalculateDistance(sourceLat, sourceLng, destinationLat, destinationLng);
 
-            /*
+            
             if (session != null)
                 GetGoogleInstance(session);
 
             //Check Google direction service is initialized
             if (_googleDirectionsService != null)
             {
-                var googleResult = _googleDirectionsService.GetDirections(new GeoCoordinate(sourceLat, sourceLng), new List<GeoCoordinate>(), new GeoCoordinate(destinationLat, destinationLng));
-                if (googleResult == null || googleResult.Directions.status.Equals("OVER_QUERY_LIMIT"))
+                var googleWalk = _googleDirectionsService.GetDirections(new GeoCoordinate(sourceLat, sourceLng), new List<GeoCoordinate>(), new GeoCoordinate(destinationLat, destinationLng));
+                if (googleWalk == null)
                 {
                     return 1.5 * base.CalculateDistance(sourceLat, sourceLng, destinationLat, destinationLng);
                 }
@@ -74,28 +74,27 @@ namespace PoGo.NecroBot.Logic.Strategies.Walk
                     //There are two ways to get distance value. One is counting from waypoint list.
                     //The other is getting from google service. The result value is different.
 
-                    ////Count distance from waypoint list
-                    //var googleWalk = GoogleWalk.Get(googleResult);
-                    //List<GeoCoordinate> points = googleWalk.Waypoints;
-                    //double distance = 0;
-                    //for (var i = 0; i < points.Count; i++)
-                    //{
-                    //    if (i > 0)
-                    //    {
-                    //        distance += LocationUtils.CalculateDistanceInMeters(points[i - 1], points[i]);
-                    //    }
-                    //}
-                    //return distance;
+                    //Count distance from waypoint list
+                    List<GeoCoordinate> points = googleWalk.Waypoints;
+                    double distance = 0;
+                    for (var i = 0; i < points.Count; i++)
+                    {
+                        if (i > 0)
+                        {
+                            distance += LocationUtils.CalculateDistanceInMeters(points[i - 1], points[i]);
+                        }
+                    }
+                    return distance;
 
                     //Get distance from Google service
-                    return googleResult.GetDistance();
+                    //return googleResult.Distance;
                 }
             }
             else
             {
                 return 1.5 * base.CalculateDistance(sourceLat, sourceLng, destinationLat, destinationLng);
             }
-            */
+            
         }
     }
 }
