@@ -444,7 +444,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
                     CalculateDistanceAndEstTime(item);
 
-                    if (item.Distance < 10000 && item.Distance != 0)  //only add if distance <10km
+                    if (item.Distance < item.Setting.MaxDistance && item.Distance != 0)
                     {
                         rarePokemons.Add(item);
                     }
