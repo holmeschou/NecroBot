@@ -140,7 +140,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
                 if (session.LogicSettings.EnableHumanWalkingSnipe)
                 {
-                    await HumanWalkSnipeTask.Execute(session, cancellationToken, pokeStop);
+                    await HumanWalkSnipeTask.Execute(session, cancellationToken, pokeStop, fortInfo);
                 }
                 pokeStop = await GetNextPokeStop(session);
             }
@@ -165,7 +165,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                 );
 
                 var pokeStopDestination = new FortLocation(pokeStop.Latitude, pokeStop.Longitude,
-                    LocationUtils.getElevation(session, pokeStop.Latitude, pokeStop.Longitude), pokeStop, fortInfo);
+                    LocationUtils.getElevation(session.ElevationService, pokeStop.Latitude, pokeStop.Longitude), pokeStop, fortInfo);
 
                 await session.Navigation.Move(pokeStopDestination,
                     async () =>
@@ -213,8 +213,8 @@ namespace PoGo.NecroBot.Logic.Tasks
                 return null;
             };
 
-            var pokeStopes = session.Forts.Where(p => p.CooldownCompleteTimestampMs < DateTime.UtcNow.ToUnixTime()).ToList();
-            pokeStopes = pokeStopes.OrderBy(
+            var forts = session.Forts.Where(p => p.CooldownCompleteTimestampMs < DateTime.UtcNow.ToUnixTime()).ToList();
+            forts = forts.OrderBy(
                         p =>
                             //session.Navigation.WalkStrategy.CalculateDistance(
                             LocationUtils.CalculateDistanceInMeters(
@@ -226,20 +226,20 @@ namespace PoGo.NecroBot.Logic.Tasks
 
             var idxNearestPokeStop = 0;
             var NearestDistance = 0.0;
-            Logger.Write($"(Holmes) pokeStopes.Count = {pokeStopes.Count}", LogLevel.Info, ConsoleColor.Yellow);
-            for (var i = 0; i < Math.Min(3, pokeStopes.Count); i++)
+            Logger.Write($"(Holmes) pokeStopes.Count = {forts.Count}", LogLevel.Info, ConsoleColor.Yellow);
+            for (var i = 0; i < Math.Min(3, forts.Count); i++)
             {
                 var CurrentDistanceSt = LocationUtils.CalculateDistanceInMeters(
                         session.Client.CurrentLatitude,
                         session.Client.CurrentLongitude,
-                        pokeStopes[i].Latitude,
-                        pokeStopes[i].Longitude);
+                        forts[i].Latitude,
+                        forts[i].Longitude);
 
                 var CurrentDistance = session.Navigation.WalkStrategy.CalculateDistance(
                         session.Client.CurrentLatitude,
                         session.Client.CurrentLongitude,
-                        pokeStopes[i].Latitude,
-                        pokeStopes[i].Longitude,
+                        forts[i].Latitude,
+                        forts[i].Longitude,
                         session);
                 if (i == 0)
                     NearestDistance = CurrentDistance;
@@ -255,27 +255,29 @@ namespace PoGo.NecroBot.Logic.Tasks
 
             if (session.LogicSettings.UseGpxPathing)
             {
-                pokeStopes = pokeStopes.Where(p => LocationUtils.CalculateDistanceInMeters(p.Latitude, p.Longitude, session.Client.CurrentLatitude, session.Client.CurrentLongitude) < 40).ToList();
+                forts = forts.Where(p => LocationUtils.CalculateDistanceInMeters(p.Latitude, p.Longitude, session.Client.CurrentLatitude, session.Client.CurrentLongitude) < 40).ToList();
             }
 
             session.EventDispatcher.Send(new PokeStopListEvent { Forts = session.Forts });
 
-            //if (pokeStopes.Count == 1) return pokeStopes.FirstOrDefault();
-
-            if (session.LogicSettings.GymAllowed && session.Inventory.GetPlayerStats().Result.FirstOrDefault().Level > 5)
+            if (!session.LogicSettings.GymAllowed || session.Inventory.GetPlayerStats().Result.FirstOrDefault().Level <= 5)
             {
-                var gyms = pokeStopes.Where(x =>
-                    x.Type == FortType.Gym &&
-                    LocationUtils.CalculateDistanceInMeters(x.Latitude, x.Longitude, session.Client.CurrentLatitude, session.Client.CurrentLongitude) < session.LogicSettings.GymMaxDistance &&
-                    x.CooldownCompleteTimestampMs < DateTime.UtcNow.ToUnixTime()
-                );
+                // Filter out the gyms
+                forts = forts.Where(x => x.Type != FortType.Gym).ToList();
+            }
+            else if (session.LogicSettings.GymPrioritizeOverPokestop)
+            {
+                // Prioritize gyms over pokestops
+                var gyms = forts.Where(x => x.Type == FortType.Gym &&
+                    LocationUtils.CalculateDistanceInMeters(x.Latitude, x.Longitude, session.Client.CurrentLatitude, session.Client.CurrentLongitude) < session.LogicSettings.GymMaxDistance);
 
-                //TODO: Why Gym has higher priority?
-                if (gyms.Count() > 0) return gyms.FirstOrDefault();
+                // Return the first gym in range.
+                if (gyms.Count() > 0)
+                    return gyms.FirstOrDefault();
             }
 
-            //return pokeStopes.Skip((int)DateTime.Now.Ticks % 2).FirstOrDefault();
-            return pokeStopes.Skip(idxNearestPokeStop).FirstOrDefault();
+            //return forts.Skip((int)DateTime.Now.Ticks % 2).FirstOrDefault();
+            return forts.Skip(idxNearestPokeStop).FirstOrDefault();
         }
 
         public static async Task SpinPokestopNearBy(ISession session, CancellationToken cancellationToken, FortData destinationFort = null)
@@ -328,6 +330,12 @@ namespace PoGo.NecroBot.Logic.Tasks
             if (!_pokestopLimitReached && !_pokestopTimerReached)
             {
                 await FarmPokestop(session, pokeStop, fortInfo, cancellationToken, doNotTrySpin);
+            }
+            else
+            {
+                // We hit the pokestop limit but not the pokemon limit. So we want to set the cooldown on the pokestop so that
+                // we keep moving and don't walk back and forth between 2 pokestops.
+                pokeStop.CooldownCompleteTimestampMs = DateTime.UtcNow.ToUnixTime() + 5 * 60 * 1000; // 5 minutes to cooldown for pokestop.
             }
 
             if (++_stopsHit >= _storeRi) //TODO: OR item/pokemon bag is full //check stopsHit against storeRI random without dividing.

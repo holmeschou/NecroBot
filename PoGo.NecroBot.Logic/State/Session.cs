@@ -31,7 +31,7 @@ namespace PoGo.NecroBot.Logic.State
         IEventDispatcher EventDispatcher { get; }
         TelegramService Telegram { get; set; }
         SessionStats Stats { get; }
-        ElevationService ElevationService { get; }
+        IElevationService ElevationService { get; set; }
         List<FortData> Forts { get; set; }
         void AddForts(List<FortData> mapObjects);
         Task<bool> WaitUntilActionAccept(BotActions action, int timeout = 30000);
@@ -41,23 +41,20 @@ namespace PoGo.NecroBot.Logic.State
 
     public class Session : ISession
     {
-        public Session(ISettings settings, ILogicSettings logicSettings) : this(settings, logicSettings, Common.Translation.Load(logicSettings))
+        public Session(ISettings settings, ILogicSettings logicSettings, IElevationService elevationService) : this(settings, logicSettings, elevationService, Common.Translation.Load(logicSettings))
         {
 
         }
         public List<BotActions> Actions { get { return this.botActions; } }
-        public Session(ISettings settings, ILogicSettings logicSettings, ITranslation translation)
+        public Session(ISettings settings, ILogicSettings logicSettings, IElevationService elevationService, ITranslation translation)
         {
             Forts = new List<FortData>();
 
             EventDispatcher = new EventDispatcher();
             LogicSettings = logicSettings;
 
-            ElevationService = new ElevationService(this);
-
-            // Update current altitude before assigning settings.
-            settings.DefaultAltitude = ElevationService.GetElevation(settings.DefaultLatitude, settings.DefaultLongitude);
-
+            this.ElevationService = elevationService;
+            
             Settings = settings;
 
             Translation = translation;
@@ -86,7 +83,7 @@ namespace PoGo.NecroBot.Logic.State
 
         public SessionStats Stats { get; set; }
 
-        public ElevationService ElevationService { get; }
+        public IElevationService ElevationService { get; set; }
 
         private List<BotActions> botActions = new List<BotActions>();
         public void Reset(ISettings settings, ILogicSettings logicSettings)
