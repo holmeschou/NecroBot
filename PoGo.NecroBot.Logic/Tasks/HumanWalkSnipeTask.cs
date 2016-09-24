@@ -164,8 +164,10 @@ namespace PoGo.NecroBot.Logic.Tasks
                 pokemon = await GetNextSnipeablePokemon(session.Client.CurrentLatitude, session.Client.CurrentLongitude, !caughtAnyPokemonInThisWalk);
                 if (pokemon != null)
                 {
+                    if (session.LogicSettings.ActivateMSniper)
+                    {
                         await MSniperServiceTask.Execute(session, cancellationToken);
-                    
+                    }
 
                     caughtAnyPokemonInThisWalk = true;
                     CalculateDistanceAndEstTime(pokemon);
@@ -199,8 +201,10 @@ namespace PoGo.NecroBot.Logic.Tasks
                     await session.Navigation.Move(snipeTarget,
                         async () =>
                         {
+                            if (session.LogicSettings.ActivateMSniper)
+                            {
                                 await MSniperServiceTask.Execute(session, cancellationToken);
-                            
+                            }
                             await ActionsWhenTravelToSnipeTarget(session, cancellationToken, pokemon, catchPokemon, spinPokestop);
                         },
                        session,
@@ -247,9 +251,10 @@ namespace PoGo.NecroBot.Logic.Tasks
             await session.Navigation.Move(destination,
                async () =>
                {
-                 
+                   if (session.LogicSettings.ActivateMSniper)
+                   {
                        await MSniperServiceTask.Execute(session, cancellationToken);
-                   
+                   }
                    await CatchNearbyPokemonsTask.Execute(session, cancellationToken);
                    await UseNearbyPokestopsTask.SpinPokestopNearBy(session, cancellationToken);
                },
