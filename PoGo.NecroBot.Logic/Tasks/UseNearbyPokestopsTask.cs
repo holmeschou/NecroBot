@@ -226,7 +226,6 @@ namespace PoGo.NecroBot.Logic.Tasks
 
             var idxNearestPokeStop = 0;
             var NearestDistance = 0.0;
-            Logger.Write($"(Holmes) pokeStopes.Count = {forts.Count}", LogLevel.Info, ConsoleColor.Yellow);
             for (var i = 0; i < Math.Min(3, forts.Count); i++)
             {
                 var CurrentDistanceSt = LocationUtils.CalculateDistanceInMeters(
@@ -249,9 +248,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                     NearestDistance = CurrentDistance;
                     idxNearestPokeStop = i;
                 }
-                Logger.Write($"(Holmes) currST = {CurrentDistanceSt}, curr = {CurrentDistance}, nearest = {NearestDistance}", LogLevel.Info, ConsoleColor.Yellow);
             }
-            Logger.Write($"(Holmes) idxNearestPokeStop = {idxNearestPokeStop}", LogLevel.Info, ConsoleColor.Yellow);
 
             if (session.LogicSettings.UseGpxPathing)
             {

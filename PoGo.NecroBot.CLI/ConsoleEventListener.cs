@@ -235,7 +235,7 @@ namespace PoGo.NecroBot.CLI
 
         private static void HandleEvent(EncounteredEvent pokemonEncounteredEvent, ISession session)
         {
-            Logger.Write($"Meet {session.Translation.GetPokemonTranslation(pokemonEncounteredEvent.PokemonId)} Level:{pokemonEncounteredEvent.Level} IV:{pokemonEncounteredEvent.IV.ToString("0.00")} at {pokemonEncounteredEvent.Latitude.ToString("0.000000")}, {pokemonEncounteredEvent.Longitude.ToString("0.000000")}", LogLevel.Info);
+            Logger.Write($"Meet {session.Translation.GetPokemonTranslation(pokemonEncounteredEvent.PokemonId)} Level:{pokemonEncounteredEvent.Level} IV:{pokemonEncounteredEvent.IV.ToString("0.00")} at {pokemonEncounteredEvent.Latitude.ToString("0.000000")}, {pokemonEncounteredEvent.Longitude.ToString("0.000000")}", LogLevel.Info, ConsoleColor.White);
         }
 
         private static void HandleEvent(NoPokeballEvent noPokeballEvent, ISession session)
