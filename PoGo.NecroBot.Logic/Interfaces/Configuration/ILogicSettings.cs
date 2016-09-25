@@ -203,6 +203,7 @@ namespace PoGo.NecroBot.Logic.Interfaces.Configuration
         bool HumanWalkingSnipeUseFastPokemap { get; }
         bool HumanWalkingSnipeUsePoke5566 { get; }
         bool HumanWalkingSnipeUsePkGet { get; }
+        bool HumanWalkingSnipeUseTwAppxHk { get; }
         bool HumanWalkingSnipeUsePogoLocationFeeder { get; }
 
         int EvolveActionDelay { get; }

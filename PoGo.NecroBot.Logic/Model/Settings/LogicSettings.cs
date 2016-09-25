@@ -212,6 +212,7 @@ namespace PoGo.NecroBot.Logic.Model.Settings
         public bool HumanWalkingSnipeUseFastPokemap => _settings.HumanWalkSnipeConfig.UseFastPokemap;
         public bool HumanWalkingSnipeUsePoke5566 => _settings.HumanWalkSnipeConfig.UsePoke5566;
         public bool HumanWalkingSnipeUsePkGet => _settings.HumanWalkSnipeConfig.UsePkGet;
+        public bool HumanWalkingSnipeUseTwAppxHk => _settings.HumanWalkSnipeConfig.UseTwAppxHk;
         public bool HumanWalkingSnipeUsePogoLocationFeeder => _settings.HumanWalkSnipeConfig.UsePogoLocationFeeder;
 
         public bool GymAllowed => _settings.GymConfig.Enable;
