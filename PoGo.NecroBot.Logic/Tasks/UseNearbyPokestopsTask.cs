@@ -121,7 +121,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                     (CatchPokemonTask._catchPokemonLimitReached || CatchPokemonTask._catchPokemonTimerReached))
                     return;
 
-					var fortInfo = pokeStop.Id == SetMoveToTargetTask.TARGET_ID ? SetMoveToTargetTask.FortInfo : await session.Client.Fort.GetFort(pokeStop.Id, pokeStop.Latitude, pokeStop.Longitude);
+                var fortInfo = pokeStop.Id == SetMoveToTargetTask.TARGET_ID ? SetMoveToTargetTask.FortInfo : await session.Client.Fort.GetFort(pokeStop.Id, pokeStop.Latitude, pokeStop.Longitude);
 
                 await WalkingToPokeStop(session, cancellationToken, pokeStop, fortInfo);
 
@@ -316,7 +316,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         private static async Task DoActionAtPokeStop(ISession session, CancellationToken cancellationToken, FortData pokeStop, FortDetailsResponse fortInfo, bool doNotTrySpin = false)
         {
-            if (pokeStop.Type != FortType.Checkpoint ) return;
+            if (pokeStop.Type != FortType.Checkpoint) return;
 
             //Catch Lure Pokemon
             if (pokeStop.LureInfo != null)

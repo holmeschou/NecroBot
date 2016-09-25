@@ -229,7 +229,7 @@ namespace PoGo.NecroBot.Logic.Tasks
             {
                 try
                 {
-                    Thread.Sleep(500);
+                    Thread.Sleep(30000);
                     //msniper.com
                     socket = new WebSocket("ws://msniper.com/WebSockets/NecroBotServer.ashx", "", WebSocketVersion.Rfc6455);
                     socket.MessageReceived += Msocket_MessageReceived;
