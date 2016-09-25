@@ -292,6 +292,12 @@
     <Compile Include="Tasks\HumanWalkSnipeTask.Skiplagged.cs">
       <DependentUpon>HumanWalkSnipeTask.cs</DependentUpon>
     </Compile>
+    <Compile Include="Tasks\HumanWalkSnipeTask.FastPokemap.cs">
+      <DependentUpon>HumanWalkSnipeTask.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Tasks\HumanWalkSnipeTask.Poke5566.cs">
+      <DependentUpon>HumanWalkSnipeTask.cs</DependentUpon>
+    </Compile>
     <Compile Include="Tasks\InventoryListTask.cs" />
     <Compile Include="Tasks\LevelUpPokemonTask.cs" />
     <Compile Include="Tasks\LevelUpSpecificPokemonTask.cs" />
