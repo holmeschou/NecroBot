@@ -295,6 +295,9 @@
     <Compile Include="Tasks\HumanWalkSnipeTask.Poke5566.cs">
       <DependentUpon>HumanWalkSnipeTask.cs</DependentUpon>
     </Compile>
+    <Compile Include="Tasks\HumanWalkSnipeTask.PkGet.cs">
+      <DependentUpon>HumanWalkSnipeTask.cs</DependentUpon>
+    </Compile>
     <Compile Include="Tasks\InventoryListTask.cs" />
     <Compile Include="Tasks\LevelUpPokemonTask.cs" />
     <Compile Include="Tasks\LevelUpSpecificPokemonTask.cs" />
