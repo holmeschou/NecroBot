@@ -45,13 +45,18 @@ namespace PoGo.NecroBot.Logic.Tasks
             try
             {
                 var baseAddress = new Uri("https://poke5566.com");
-                var handler = new HttpClientHandler { UseCookies = false };
+                var handler = new HttpClientHandler
+                {
+                    UseCookies = false,
+                    AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate
+                };
                 var client = new HttpClient(handler) { BaseAddress = baseAddress };
                 double offset = _setting.HumanWalkingSnipeSnipingScanOffset;
 
                 var message = new HttpRequestMessage(HttpMethod.Get, $"https://poke5566.com/pokemons?lat0={lat + offset}&lng0={lng + offset}&lat1={lat - offset}&lng1={lng - offset}");
                 message.Headers.Host = "poke5566.com";
                 message.Headers.Accept.TryParseAdd("application/json, text/javascript, */*; q=0.01");
+                message.Headers.AcceptEncoding.ParseAdd("gzip, deflate");
                 message.Headers.UserAgent.TryParseAdd("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36");
                 message.Headers.Referrer = new Uri("https://poke5566.com/");
                 message.Headers.Add("X-Requested-With", "XMLHttpRequest");
