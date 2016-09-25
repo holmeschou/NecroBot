@@ -13,10 +13,13 @@ namespace PoGo.NecroBot.Logic.Tasks
         {
             public class Poke5566Item
             {
-                public int id { get; set; }
-                public double time { get; set; }
-                public double lat { get; set; }
-                public double lng { get; set; }
+                public int i { get; set; }
+                public double t { get; set; }
+                public double a { get; set; }
+                public double n { get; set; }
+                public int s { get; set; }
+                public string[] v { get; set; }
+                public string[] m { get; set; }
             }
             public List<Poke5566Item> pokemons { get; set; }
         }
@@ -25,10 +28,10 @@ namespace PoGo.NecroBot.Logic.Tasks
         {
             return new SnipePokemonInfo()
             {
-                Latitude = result.lat,
-                Longitude = result.lng,
-                Id = result.id,
-                ExpiredTime = UnixTimeStampToDateTime(result.time / 1000),
+                Latitude = result.a,
+                Longitude = result.n,
+                Id = result.i,
+                ExpiredTime = UnixTimeStampToDateTime(result.t / 1000),
                 Source = "Poke5566"
             };
         }
@@ -49,18 +52,16 @@ namespace PoGo.NecroBot.Logic.Tasks
                 var message = new HttpRequestMessage(HttpMethod.Get, $"https://poke5566.com/pokemons?lat0={lat + offset}&lng0={lng + offset}&lat1={lat - offset}&lng1={lng - offset}");
                 message.Headers.Host = "poke5566.com";
                 message.Headers.Accept.TryParseAdd("application/json, text/javascript, */*; q=0.01");
-                message.Headers.AcceptEncoding.ParseAdd("gzip, deflate, sdch, br");
                 message.Headers.UserAgent.TryParseAdd("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36");
                 message.Headers.Referrer = new Uri("https://poke5566.com/");
                 message.Headers.Add("X-Requested-With", "XMLHttpRequest");
-                message.Headers.Add($"Cookie", "_gat=1; poke5566=lat0={lat + offset}&lng0={lng + offset}&lat1={lat - offset}&lng1={lng - offset}; _ga=GA1.2.1937162754.1473467316");
+                message.Headers.Add($"Cookie", "_gat=1; poke5566=lat0={lat + offset}&lng0={lng + offset}&lat1={lat - offset}&lng1={lng - offset}; ss=poke5566; _ga=GA1.2.1937162754.1473467316; star=1; iv=0");
 
                 var result = await client.SendAsync(message);
                 result.EnsureSuccessStatusCode();
                 
-                Logger.Write($"FetchFromPoke5566 called", LogLevel.Info, ConsoleColor.White);
                 var task = await result.Content.ReadAsStringAsync();
-                Logger.Write($"FetchFromPoke5566 responsed {task}", LogLevel.Info, ConsoleColor.White);
+                //Logger.Write($"FetchFromPoke5566 responsed {task}", LogLevel.Info, ConsoleColor.White);
 
                 var data = JsonConvert.DeserializeObject<Poke5566Wrap>(task);
                 foreach (var item in data.pokemons)
