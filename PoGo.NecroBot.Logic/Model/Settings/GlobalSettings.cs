@@ -234,9 +234,6 @@ namespace PoGo.NecroBot.Logic.Model.Settings
                         try
                         {
                             input = File.ReadAllText(configFile, Encoding.UTF8);
-                            if (!input.Contains("DeprecatedMoves"))
-                                input = input.Replace("\"Moves\"", $"\"DeprecatedMoves\"");
-
                             break;
                         }
                         catch (Exception exception)
@@ -321,9 +318,7 @@ namespace PoGo.NecroBot.Logic.Model.Settings
                     }
                     foreach (var filter in settings.PokemonsTransferFilter.Where(x => x.Value.Moves == null))
                     {
-                        filter.Value.Moves = filter.Value.DeprecatedMoves != null
-                            ? new List<List<PokemonMove>> {filter.Value.DeprecatedMoves}
-                            : filter.Value.Moves ?? new List<List<PokemonMove>>();
+                        filter.Value.Moves = new List<List<PokemonMove>>();
                     }
                     foreach (var filter in settings.PokemonsTransferFilter.Where(x => x.Value.MovesOperator == null))
                     {
