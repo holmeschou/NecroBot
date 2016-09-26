@@ -105,8 +105,6 @@ namespace PoGo.NecroBot.CLI
             if (File.Exists(configFile))
             {
                 // Load the settings from the config file
-                // If the current program is not the latest version, ensure we skip saving the file after loading
-                // This is to prevent saving the file with new options at their default values so we can check for differences
                 settings = GlobalSettings.Load(_subPath, false, _enableJsonValidation);
             }
             else
@@ -203,23 +201,11 @@ namespace PoGo.NecroBot.CLI
 
             if (boolNeedsSetup)
             {
-                if (GlobalSettings.PromptForSetup(_session.Translation))
-                {
-                    _session = GlobalSettings.SetupSettings(_session, settings, elevationService, configFile);
+                GlobalSettings.Load(_subPath, false, _enableJsonValidation);
 
-                    var fileName = Assembly.GetExecutingAssembly().Location;
-                    Process.Start(fileName);
-                    Environment.Exit(0);
-                }
-                else
-                {
-                    GlobalSettings.Load(_subPath, false, _enableJsonValidation);
-
-                    Logger.Write("Press a Key to continue...",
-                        LogLevel.Warning);
-                    Console.ReadKey();
-                    return;
-                }
+                Logger.Write("Generate default configuation files. Press a Key to continue...", LogLevel.Warning);
+                Console.ReadKey();
+                return;
             }
 
             ProgressBar.Start("NecroBot2 is starting up", 10);
@@ -294,7 +280,7 @@ namespace PoGo.NecroBot.CLI
                 BotDataSocketClient.StartAsync(_session);
                 _session.EventDispatcher.EventReceived += evt => BotDataSocketClient.Listen(evt, _session);
             }
-            settings.CheckProxy(_session.Translation);
+            settings.Auth.CheckProxy(_session.Translation);
 
             QuitEvent.WaitOne();
         }

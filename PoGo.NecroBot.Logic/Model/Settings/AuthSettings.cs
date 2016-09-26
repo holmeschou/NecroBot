@@ -73,22 +73,6 @@ namespace PoGo.NecroBot.Logic.Model.Settings
             }
         }
 
-        //private JObject _jsonObject;
-        //public JObject JsonObject
-        //{
-        //    get
-        //    {
-        //        if (_jsonObject == null)
-        //            _jsonObject = JObject.FromObject(this);
-
-        //        return _jsonObject;
-        //    }
-        //    set
-        //    {
-        //        _jsonObject = value;
-        //    }
-        //}
-
         public AuthSettings()
         {
             InitializePropertyDefaultValues(this);
@@ -106,22 +90,6 @@ namespace PoGo.NecroBot.Logic.Model.Settings
                     field.SetValue(obj, d.Value);
             }
         }
-
-        //public void Load(JObject jsonObj)
-        //{
-        //    try
-        //    {
-        //        var input = jsonObj.ToString(Formatting.None, new StringEnumConverter { CamelCaseText = true });
-        //        var settings = new JsonSerializerSettings();
-        //        settings.Converters.Add(new StringEnumConverter { CamelCaseText = true });
-        //        JsonConvert.PopulateObject(input, this, settings);
-        //        Save(_filePath);
-        //    }
-        //    catch (JsonReaderException exception)
-        //    {
-        //            Logger.Write("JSON Exception: " + exception.Message, LogLevel.Error);
-        //    }
-        //}
 
         public void Load(string path, bool boolSkipSave = false, bool validate = false)
         {
@@ -211,9 +179,9 @@ namespace PoGo.NecroBot.Logic.Model.Settings
                         SetDevInfoByKey();
                     }
                 }
+                // changed to random hex as full alphabet letters could have been flagged
                 if (string.IsNullOrEmpty(DeviceConfig.DeviceId) || DeviceConfig.DeviceId == "8525f5d8201f78b5")
                     DeviceConfig.DeviceId = RandomString(16, "0123456789abcdef");
-                        // changed to random hex as full alphabet letters could have been flagged
 
                 // Jurann: Note that some device IDs I saw when adding devices had smaller numbers, only 12 or 14 chars instead of 16 - probably not important but noted here anyway
 
@@ -244,7 +212,7 @@ namespace PoGo.NecroBot.Logic.Model.Settings
             }
         }
 
-        public void Save(string fullPath, bool validate = false)
+        public void Save(string fullPath)
         {
             var jsonSerializeSettings = new JsonSerializerSettings
             {
@@ -263,33 +231,9 @@ namespace PoGo.NecroBot.Logic.Model.Settings
             File.WriteAllText(fullPath, output, Encoding.UTF8);
 
             //JsonSchema
-            File.WriteAllText(fullPath.Replace(".json", ".schema.json"), JsonSchema.ToString(), Encoding.UTF8);
+            //File.WriteAllText(fullPath.Replace(".json", ".schema.json"), JsonSchema.ToString(), Encoding.UTF8);
 
-            if (!validate) return;
-
-            // validate Json using JsonSchema
-            Logger.Write("Validating auth.json...");
-            var jsonObj = JObject.Parse(output);
-            IList<ValidationError> errors;
-            var valid = jsonObj.IsValid(JsonSchema, out errors);
-            if (valid) return;
-            foreach (var error in errors)
-            {
-                Logger.Write(
-                    "auth.json [Line: " + error.LineNumber + ", Position: " + error.LinePosition + "]: " + error.Path +
-                    " " +
-                    error.Message, LogLevel.Error);
-            }
-            Logger.Write("Fix auth.json and restart NecroBot or press a key to ignore and continue...", LogLevel.Warning);
-            Console.ReadKey();
-        }
-
-        public void Save()
-        {
-            if (!string.IsNullOrEmpty(_filePath))
-            {
-                Save(_filePath);
-            }
+            return;
         }
 
         public void CheckProxy(ITranslation translator)
@@ -355,8 +299,7 @@ namespace PoGo.NecroBot.Logic.Model.Settings
             }
             else
             {
-                throw new ArgumentException(
-                    "Invalid device info package! Check your auth.config file and make sure a valid DevicePackageName is set. For simple use set it to 'random'. If you have a custom device, then set it to 'custom'.");
+                DeviceConfig.DevicePackageName = "random";
             }
         }
 
@@ -381,8 +324,7 @@ namespace PoGo.NecroBot.Logic.Model.Settings
         {
             if (!ProxyConfig.UseProxy) return null;
 
-            var prox = new WebProxy(new Uri($"http://{ProxyConfig.UseProxyHost}:{ProxyConfig.UseProxyPort}"), false,
-                null);
+            var prox = new WebProxy(new Uri($"http://{ProxyConfig.UseProxyHost}:{ProxyConfig.UseProxyPort}"), false, null);
 
             if (ProxyConfig.UseProxyAuthentication)
                 prox.Credentials = new NetworkCredential(ProxyConfig.UseProxyUsername, ProxyConfig.UseProxyPassword);
