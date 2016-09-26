@@ -16,7 +16,6 @@ namespace PoGo.NecroBot.Logic.Model.Settings
         private readonly GlobalSettings _settings;
 
         public LogicSettings(GlobalSettings settings)
-
         {
             _settings = settings;
         }

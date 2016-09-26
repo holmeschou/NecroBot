@@ -34,8 +34,6 @@ namespace PoGo.NecroBot.CLI
 
         private static readonly Uri StrKillSwitchUri =
             new Uri("https://raw.githubusercontent.com/Necrobot-Private/Necrobot2/master/KillSwitch.txt");
-        private static readonly Uri StrMasterKillSwitchUri =
-            new Uri("https://raw.githubusercontent.com/Silph-Road/NecroBot/master/PoGo.NecroBot.Logic/MKS.txt");
 
         private static Session _session;
 
@@ -88,36 +86,24 @@ namespace PoGo.NecroBot.CLI
                 }
             }
 
-
-
             Logger.SetLogger(new ConsoleLogger(LogLevel.Service), _subPath);
 
-            //if (!_ignoreKillSwitch && CheckKillSwitch() || CheckMKillSwitch())
+            //if (!_ignoreKillSwitch && CheckKillSwitch())
             //    return;
 
             var profilePath = Path.Combine(Directory.GetCurrentDirectory(), _subPath);
             var profileConfigPath = Path.Combine(profilePath, "config");
             var configFile = Path.Combine(profileConfigPath, "config.json");
-
             GlobalSettings settings;
-            var boolNeedsSetup = false;
 
-            if (File.Exists(configFile))
-            {
-                // Load the settings from the config file
-                settings = GlobalSettings.Load(_subPath, false, _enableJsonValidation);
-            }
-            else
-            {
-                settings = new GlobalSettings
-                {
-                    ProfilePath = profilePath,
-                    ProfileConfigPath = profileConfigPath,
-                    GeneralConfigPath = Path.Combine(Directory.GetCurrentDirectory(), "config"),
-                    ConsoleConfig = { TranslationLanguageCode = strCulture }
-                };
+            // Load the settings from the config file or generate default
+            settings = GlobalSettings.Load(_subPath, false, _enableJsonValidation);
 
-                boolNeedsSetup = true;
+            if (settings == null)
+            {
+                Logger.Write("Configuration files are not exist. We had generated default configuation files. Please edit it and run again. \nPress a Key to continue...", LogLevel.Warning);
+                Console.ReadKey();
+                return;
             }
 
             if (commandLine["latlng"] != null && commandLine["latlng"].Length > 0)
@@ -198,15 +184,6 @@ namespace PoGo.NecroBot.CLI
             IElevationService elevationService = new ElevationService(settings);
             _session = new Session(new ClientSettings(settings, elevationService), logicSettings, elevationService, translation);
             Logger.SetLoggerContext(_session);
-
-            if (boolNeedsSetup)
-            {
-                GlobalSettings.Load(_subPath, false, _enableJsonValidation);
-
-                Logger.Write("Generate default configuation files. Press a Key to continue...", LogLevel.Warning);
-                Console.ReadKey();
-                return;
-            }
 
             ProgressBar.Start("NecroBot2 is starting up", 10);
 
@@ -317,49 +294,6 @@ namespace PoGo.NecroBot.CLI
 
             if (fileContent.Count > 0)
                 File.WriteAllLines(path, fileContent.ToArray());
-        }
-
-        private static bool CheckMKillSwitch()
-        {
-            using (var wC = new WebClient())
-            {
-                try
-                {
-                    var strResponse1 = WebClientExtensions.DownloadString(wC, StrMasterKillSwitchUri);
-
-                    if (strResponse1 == null)
-                        return true;
-
-                    var strSplit1 = strResponse1.Split(';');
-
-                        if (strSplit1.Length > 1)
-                        {
-                            var strStatus1 = strSplit1[0];
-                            var strReason1 = strSplit1[1];
-                            var strExitMsg = strSplit1[2];
-
-
-                            if (strStatus1.ToLower().Contains("disable"))
-                            {
-                                Logger.Write(strReason1 + $"\n", LogLevel.Warning);
-
-                                Logger.Write(strExitMsg + $"\n" + "Please press enter to continue", LogLevel.Error);
-                                Console.ReadLine();
-                                return true;
-                            }
-                            else
-                                return false;
-                        }
-                        else
-                            return false;
-                }   
-                catch (WebException)
-                {
-                    // ignored
-                }
-            }
-
-            return false;
         }
 
         private static bool CheckKillSwitch()
