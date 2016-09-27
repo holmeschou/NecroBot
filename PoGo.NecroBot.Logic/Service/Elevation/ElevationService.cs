@@ -9,25 +9,22 @@ namespace PoGo.NecroBot.Logic.Service.Elevation
 {
     public class ElevationService : IElevationService
     {
-        private ILogicSettings _settings;
         LRUCache<string, double> cache = new LRUCache<string, double>(capacity: 500);
 
         private List<IElevationService> ElevationServiceQueue = new List<IElevationService>();
         public Dictionary<Type, DateTime> ElevationServiceBlacklist = new Dictionary<Type, DateTime>();
 
-        public ElevationService(ILogicSettings settings)
+        public ElevationService(GlobalSettings globalSettings)
         {
-            _settings = settings;
+            if (!string.IsNullOrEmpty(globalSettings.MapzenWalkConfig.MapzenElevationApiKey))
+                ElevationServiceQueue.Add(new MapzenElevationService(globalSettings, cache));
 
-            if (!string.IsNullOrEmpty(settings.MapzenElevationApiKey))
-                ElevationServiceQueue.Add(new MapzenElevationService(settings, cache));
+            ElevationServiceQueue.Add(new MapQuestElevationService(globalSettings, cache));
 
-            ElevationServiceQueue.Add(new MapQuestElevationService(settings, cache));
+            if (!string.IsNullOrEmpty(globalSettings.GoogleWalkConfig.GoogleElevationAPIKey))
+                ElevationServiceQueue.Add(new GoogleElevationService(globalSettings, cache));
 
-            if (!string.IsNullOrEmpty(settings.GoogleElevationApiKey))
-                ElevationServiceQueue.Add(new GoogleElevationService(settings, cache));
-
-            ElevationServiceQueue.Add(new RandomElevationService(settings, cache));
+            ElevationServiceQueue.Add(new RandomElevationService(globalSettings, cache));
         }
 
         public bool IsElevationServiceBlacklisted(Type strategy)

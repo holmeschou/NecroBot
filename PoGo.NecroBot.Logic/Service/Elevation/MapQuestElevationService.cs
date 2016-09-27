@@ -24,7 +24,7 @@ namespace PoGo.NecroBot.Logic.Service.Elevation
     {
         private string mapQuestDemoApiKey = $"Kmjtd|luua2qu7n9,7a=o5-lzbgq";
 
-        public MapQuestElevationService(ILogicSettings settings, LRUCache<string, double> cache) : base(settings, cache)
+        public MapQuestElevationService(GlobalSettings globalSettings, LRUCache<string, double> cache) : base(globalSettings, cache)
         {
             if (!string.IsNullOrEmpty(mapQuestDemoApiKey))
                 _apiKey = mapQuestDemoApiKey;

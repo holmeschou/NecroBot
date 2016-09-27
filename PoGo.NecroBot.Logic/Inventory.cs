@@ -27,7 +27,7 @@ namespace PoGo.NecroBot.Logic
     public class Inventory
     {
         private readonly Client _client;
-        private readonly ILogicSettings _logicSettings;
+        private readonly GlobalSettings _globalSettings;
         private GetPlayerResponse _player = null;
         private int _level = 0;
         private DownloadItemTemplatesResponse _templates;
@@ -37,10 +37,10 @@ namespace PoGo.NecroBot.Logic
         private GetInventoryResponse _cachedInventory;
         private DateTime _lastRefresh;
 
-        public Inventory(Client client, ILogicSettings logicSettings)
+        public Inventory(Client client, GlobalSettings globalSettings)
         {
             _client = client;
-            _logicSettings = logicSettings;
+            _globalSettings = globalSettings;
         }
 
         private Caching.LRUCache<ItemId, int> pokeballCache = new Caching.LRUCache<ItemId, int>(capacity: 10);
@@ -324,13 +324,13 @@ namespace PoGo.NecroBot.Logic
                 return itemsToRecycle;
 
             var otherItemsToRecycle = myItems
-                .Where(x => _logicSettings.ItemRecycleFilter.Any(f => f.Key == x.ItemId && x.Count > f.Value))
+                .Where(x => _globalSettings.ItemRecycleFilter.Any(f => f.Key == x.ItemId && x.Count > f.Value))
                 .Select(
                     x =>
                         new ItemData
                         {
                             ItemId = x.ItemId,
-                            Count = x.Count - _logicSettings.ItemRecycleFilter.Single(f => f.Key == x.ItemId).Value,
+                            Count = x.Count - _globalSettings.ItemRecycleFilter.Single(f => f.Key == x.ItemId).Value,
                             Unseen = x.Unseen
                         });
 
@@ -453,14 +453,14 @@ namespace PoGo.NecroBot.Logic
                 myPokemon =
                     myPokemon.Where(
                         p => (pokemonIds.Contains(p.PokemonId)) ||
-                             (_logicSettings.EvolveAllPokemonAboveIv &&
-                              (PokemonInfo.CalculatePokemonPerfection(p) >= _logicSettings.EvolveAboveIvValue)));
+                             (_globalSettings.PokemonConfig.EvolveAllPokemonAboveIv &&
+                              (PokemonInfo.CalculatePokemonPerfection(p) >= _globalSettings.PokemonConfig.EvolveAboveIvValue)));
             }
-            else if (_logicSettings.EvolveAllPokemonAboveIv)
+            else if (_globalSettings.PokemonConfig.EvolveAllPokemonAboveIv)
             {
                 myPokemon =
                     myPokemon.Where(
-                        p => PokemonInfo.CalculatePokemonPerfection(p) >= _logicSettings.EvolveAboveIvValue);
+                        p => PokemonInfo.CalculatePokemonPerfection(p) >= _globalSettings.PokemonConfig.EvolveAboveIvValue);
             }
             var pokemons = myPokemon.ToList();
 
@@ -509,7 +509,7 @@ namespace PoGo.NecroBot.Logic
         {
             var upgradePokemon = new List<PokemonData>();
 
-            if (!_logicSettings.AutomaticallyLevelUpPokemon)
+            if (!_globalSettings.PokemonConfig.AutomaticallyLevelUpPokemon)
                 return upgradePokemon;
 
             var myPokemon = await GetPokemons();
@@ -518,7 +518,7 @@ namespace PoGo.NecroBot.Logic
 
             Parallel.ForEach(grouped, (group) =>
             {
-                var appliedFilter = _logicSettings.PokemonUpgradeFilters.ContainsKey(group.Key) ? _logicSettings.PokemonUpgradeFilters[group.Key] : new UpgradeFilter(_logicSettings.LevelUpByCPorIv, _logicSettings.UpgradePokemonCpMinimum, _logicSettings.UpgradePokemonIvMinimum, _logicSettings.UpgradePokemonMinimumStatsOperator, _logicSettings.OnlyUpgradeFavorites);
+                var appliedFilter = _globalSettings.PokemonUpgradeFilters.ContainsKey(group.Key) ? _globalSettings.PokemonUpgradeFilters[group.Key] : new UpgradeFilter(_globalSettings.PokemonConfig.LevelUpByCPorIv, _globalSettings.PokemonConfig.UpgradePokemonCpMinimum, _globalSettings.PokemonConfig.UpgradePokemonIvMinimum, _globalSettings.PokemonConfig.UpgradePokemonMinimumStatsOperator, _globalSettings.PokemonConfig.OnlyUpgradeFavorites);
 
                 IEnumerable<PokemonData> highestPokemonForUpgrade = (appliedFilter.UpgradePokemonMinimumStatsOperator.ToLower().Equals("and")) ?
                group.Where(
@@ -546,13 +546,13 @@ namespace PoGo.NecroBot.Logic
 
         public TransferFilter GetPokemonTransferFilter(PokemonId pokemon)
         {
-            if (_logicSettings.PokemonsTransferFilter != null &&
-                _logicSettings.PokemonsTransferFilter.ContainsKey(pokemon))
+            if (_globalSettings.PokemonsTransferFilter != null &&
+                _globalSettings.PokemonsTransferFilter.ContainsKey(pokemon))
             {
-                return _logicSettings.PokemonsTransferFilter[pokemon];
+                return _globalSettings.PokemonsTransferFilter[pokemon];
             }
-            return new TransferFilter(_logicSettings.KeepMinCp, _logicSettings.KeepMinLvl, _logicSettings.UseKeepMinLvl, _logicSettings.KeepMinIvPercentage,
-                _logicSettings.KeepMinOperator, _logicSettings.KeepMinDuplicatePokemon);
+            return new TransferFilter(_globalSettings.PokemonConfig.KeepMinCp, _globalSettings.PokemonConfig.KeepMinLvl, _globalSettings.PokemonConfig.UseKeepMinLvl, _globalSettings.PokemonConfig.KeepMinIvPercentage,
+                _globalSettings.PokemonConfig.KeepMinOperator, _globalSettings.PokemonConfig.KeepMinDuplicatePokemon);
         }
 
         public async Task<GetInventoryResponse> RefreshCachedInventory()

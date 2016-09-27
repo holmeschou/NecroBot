@@ -10,10 +10,10 @@ namespace PoGo.NecroBot.Logic.Service.Elevation
 {
     public class MapzenElevationService : BaseElevationService
     {
-        public MapzenElevationService(ILogicSettings settings, LRUCache<string, double> cache) : base(settings, cache)
+        public MapzenElevationService(GlobalSettings globalSettings, LRUCache<string, double> cache) : base(globalSettings, cache)
         {
-            if (!string.IsNullOrEmpty(settings.MapzenElevationApiKey))
-                _apiKey = settings.MapzenElevationApiKey;
+            if (!string.IsNullOrEmpty(globalSettings.MapzenWalkConfig.MapzenElevationApiKey))
+                _apiKey = globalSettings.MapzenWalkConfig.MapzenElevationApiKey;
         }
 
         public override string GetServiceId()

@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using PoGo.NecroBot.Logic.Model;
 using PoGo.NecroBot.Logic.Service.Elevation;
+using PoGo.NecroBot.Logic.Model.Settings;
 
 #endregion
 
@@ -30,14 +31,14 @@ namespace PoGo.NecroBot.Logic
         private List<IWalkStrategy> WalkStrategyQueue { get; set; }
         public Dictionary<Type, DateTime> WalkStrategyBlackList = new Dictionary<Type, DateTime>();
 
-        public Navigation(Client client, ILogicSettings logicSettings)
+        public Navigation(Client client, GlobalSettings globalSettings)
         {
             _client = client;
             
-            InitializeWalkStrategies(logicSettings);
-            WalkStrategy = GetStrategy(logicSettings);
+            InitializeWalkStrategies(globalSettings);
+            WalkStrategy = GetStrategy(globalSettings);
 
-            ElevationService = new ElevationService(logicSettings);
+            ElevationService = new ElevationService(globalSettings);
         }
 
         public double VariantRandom(ISession session, double currentSpeed)
@@ -101,32 +102,32 @@ namespace PoGo.NecroBot.Logic
             return await WalkStrategy.Walk(targetLocation, functionExecutedWhileWalking, session, cancellationToken, customWalkingSpeed);
         }
 
-        private void InitializeWalkStrategies(ILogicSettings logicSettings)
+        private void InitializeWalkStrategies(GlobalSettings globalSettings)
         {
             WalkStrategyQueue = new List<IWalkStrategy>();
 
             // Maybe change configuration for a Navigation Type.
-            if (logicSettings.DisableHumanWalking)
+            if (globalSettings.LocationConfig.DisableHumanWalking)
             {
                 WalkStrategyQueue.Add(new FlyStrategy(_client));
             }
 
-            if (logicSettings.UseGpxPathing)
+            if (globalSettings.GPXConfig.UseGpxPathing)
             {
                 WalkStrategyQueue.Add(new HumanPathWalkingStrategy(_client));
             }
             
-            if (logicSettings.UseGoogleWalk)
+            if (globalSettings.GoogleWalkConfig.UseGoogleWalk)
             {
                 WalkStrategyQueue.Add(new GoogleStrategy(_client));
             }
 
-            if (logicSettings.UseMapzenWalk)
+            if (globalSettings.MapzenWalkConfig.UseMapzenWalk)
             {
                 WalkStrategyQueue.Add(new MapzenNavigationStrategy(_client));
             }
 
-            if (logicSettings.UseYoursWalk)
+            if (globalSettings.YoursWalkConfig.UseYoursWalk)
             {
                 WalkStrategyQueue.Add(new YoursNavigationStrategy(_client));
             }
@@ -159,7 +160,7 @@ namespace PoGo.NecroBot.Logic
             WalkStrategyBlackList[strategy] = DateTime.Now.AddHours(1);
         }
 
-        public IWalkStrategy GetStrategy(ILogicSettings logicSettings)
+        public IWalkStrategy GetStrategy(GlobalSettings globalSettings)
         {
             return WalkStrategyQueue.First(q => !IsWalkingStrategyBlacklisted(q.GetType()));
         }

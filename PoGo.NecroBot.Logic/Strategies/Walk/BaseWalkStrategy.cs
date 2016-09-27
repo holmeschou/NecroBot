@@ -76,7 +76,7 @@ namespace PoGo.NecroBot.Logic.Strategies.Walk
             // If we need to fall-back, then blacklist current strategy for 1 hour.
             session.Navigation.BlacklistStrategy(this.GetType());
 
-            IWalkStrategy nextStrategy = session.Navigation.GetStrategy(logicSettings);
+            IWalkStrategy nextStrategy = session.Navigation.GetStrategy(session.GlobalSettings);
             session.Navigation.WalkStrategy = nextStrategy;
 
             return nextStrategy.Walk(targetLocation, functionExecutedWhileWalking, session, cancellationToken);

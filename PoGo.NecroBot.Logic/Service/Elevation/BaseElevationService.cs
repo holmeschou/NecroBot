@@ -9,16 +9,16 @@ namespace PoGo.NecroBot.Logic.Service.Elevation
 {
     public abstract class BaseElevationService : IElevationService
     {
-        protected ILogicSettings _settings;
+        protected GlobalSettings _settings;
         protected LRUCache<string, double> _cache;
         protected string _apiKey;
 
         public abstract string GetServiceId();
         public abstract double GetElevationFromWebService(double lat, double lng);
 
-        public BaseElevationService(ILogicSettings settings, LRUCache<string, double> cache)
+        public BaseElevationService(GlobalSettings globalSettings, LRUCache<string, double> cache)
         {
-            _settings = settings;
+            _settings = globalSettings;
             _cache = cache;
         }
 

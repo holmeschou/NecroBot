@@ -24,19 +24,19 @@ namespace PoGo.NecroBot.CLI.WebSocketHandler.GetCommands.Tasks
                 var authFile = Path.Combine(profileConfigPath, "auth.json");
                 var authSchemaFile = Path.Combine(profileConfigPath, "auth.schema.json");
                 var authJson = File.ReadAllText(authFile, Encoding.UTF8);
-                var authSchemaJson = File.ReadAllText(authSchemaFile, Encoding.UTF8);
+                //var authSchemaJson = File.ReadAllText(authSchemaFile, Encoding.UTF8);
 
                 var configFile = Path.Combine(profileConfigPath, "config.json");
                 var configSchemaFile = Path.Combine(profileConfigPath, "config.schema.json");
                 var configJson = File.ReadAllText(configFile, Encoding.UTF8);
-                var configSchemaJson = File.ReadAllText(configSchemaFile, Encoding.UTF8);
+                //var configSchemaJson = File.ReadAllText(configSchemaFile, Encoding.UTF8);
 
                 var list = new ConfigWeb
                 {
                     AuthJson = authJson,
-                    AuthSchemaJson = authSchemaJson,
+                    AuthSchemaJson = null,
                     ConfigJson = configJson,
-                    ConfigSchemaJson = configSchemaJson
+                    ConfigSchemaJson = null
                 };
 
                 webSocketSession.Send(EncodingHelper.Serialize(new ConfigResponce(list, requestID)));

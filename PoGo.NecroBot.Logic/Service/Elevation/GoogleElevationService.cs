@@ -30,10 +30,10 @@ namespace PoGo.NecroBot.Logic.Service.Elevation
 
     public class GoogleElevationService : BaseElevationService
     {
-        public GoogleElevationService(ILogicSettings settings, LRUCache<string, double> cache) : base(settings, cache)
+        public GoogleElevationService(GlobalSettings globalSettings, LRUCache<string, double> cache) : base(globalSettings, cache)
         {
-            if (!string.IsNullOrEmpty(settings.GoogleElevationApiKey))
-                _apiKey = settings.GoogleElevationApiKey;
+            if (!string.IsNullOrEmpty(globalSettings.GoogleWalkConfig.GoogleElevationAPIKey))
+                _apiKey = globalSettings.GoogleWalkConfig.GoogleElevationAPIKey;
         }
 
         public override string GetServiceId()

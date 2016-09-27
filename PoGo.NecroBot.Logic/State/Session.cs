@@ -19,70 +19,73 @@ namespace PoGo.NecroBot.Logic.State
     public interface ISession
     {
         ISettings Settings { get; set; }
-        Client Client { get; }
-        Inventory Inventory { get; }
-        GetPlayerResponse Profile { get; set; }
-        Navigation Navigation { get; }
         GlobalSettings GlobalSettings { get; }
         ILogicSettings LogicSettings { get; }
         ITranslation Translation { get; }
+        Client Client { get; }
+        GetPlayerResponse Profile { get; set; }
+        Inventory Inventory { get; }
+        Navigation Navigation { get; }
         IEventDispatcher EventDispatcher { get; }
-        TelegramService Telegram { get; set; }
-        SessionStats Stats { get; }
         List<FortData> Forts { get; set; }
+        SessionStats Stats { get; }
+        TelegramService Telegram { get; set; }
+        List<BotActions> Actions { get; }
+
         void AddForts(List<FortData> mapObjects);
         Task<bool> WaitUntilActionAccept(BotActions action, int timeout = 30000);
-        List<BotActions> Actions { get; }
     }
 
     public class Session : ISession
     {
-        public List<BotActions> Actions { get { return this.botActions; } }
-        public Session(ISettings settings, ILogicSettings logicSettings, ITranslation translation)
+        public Session(ISettings settings, GlobalSettings globalSettings, ILogicSettings logicSettings, ITranslation translation)
         {
-            Forts = new List<FortData>();
+            Settings = settings;
+            GlobalSettings = globalSettings;
+            LogicSettings = logicSettings;
+            Translation = translation;
+
+            Client = new Client(Settings, new ApiFailureStrategy(this));
+            Inventory = new Inventory(Client, GlobalSettings);
+            Navigation = new Navigation(Client, GlobalSettings);
 
             EventDispatcher = new EventDispatcher();
-            LogicSettings = logicSettings;
 
-            Settings = settings;
+            Forts = new List<FortData>();
 
-            Translation = translation;
-            Reset(settings, LogicSettings);
             Stats = new SessionStats();
+
+            if (GlobalSettings.TelegramConfig.UseTelegramAPI)
+                Telegram = new TelegramService(GlobalSettings.TelegramConfig.TelegramAPIKey, this);
         }
-        public List<FortData> Forts { get; set; }
-        public GlobalSettings GlobalSettings { get; private set; }
 
         public ISettings Settings { get; set; }
 
-        public Inventory Inventory { get; private set; }
-
-        public Client Client { get; private set; }
-
-        public GetPlayerResponse Profile { get; set; }
-        public Navigation Navigation { get; private set; }
+        public GlobalSettings GlobalSettings { get; private set; }
 
         public ILogicSettings LogicSettings { get; set; }
 
         public ITranslation Translation { get; }
 
+        public Client Client { get; private set; }
+
+        public GetPlayerResponse Profile { get; set; }
+
+        public Inventory Inventory { get; private set; }
+
+        public Navigation Navigation { get; private set; }
+
         public IEventDispatcher EventDispatcher { get; }
 
-        public TelegramService Telegram { get; set; }
+        public List<FortData> Forts { get; set; }
 
         public SessionStats Stats { get; set; }
 
-        private List<BotActions> botActions = new List<BotActions>();
+        public TelegramService Telegram { get; set; }
 
-        public void Reset(ISettings settings, ILogicSettings logicSettings)
-        {
-            ApiFailureStrategy _apiStrategy = new ApiFailureStrategy(this);
-            Client = new Client(Settings, _apiStrategy);
-            // ferox wants us to set this manually
-            Inventory = new Inventory(Client, logicSettings);
-            Navigation = new Navigation(Client, logicSettings);
-        }
+        public List<BotActions> Actions { get { return this.botActions; } }
+
+        private List<BotActions> botActions = new List<BotActions>();
 
         public void AddForts(List<FortData> data)
         {

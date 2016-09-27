@@ -179,7 +179,7 @@ namespace PoGo.NecroBot.CLI
             }
 
             var logicSettings = new LogicSettings(settings);
-            _session = new Session(new ClientSettings(settings), logicSettings, translation);
+            _session = new Session(new ClientSettings(settings), settings, logicSettings, translation);
             Logger.SetLoggerContext(_session);
 
             if (settings.WebsocketsConfig.UseWebsocket)
@@ -226,9 +226,6 @@ namespace PoGo.NecroBot.CLI
             catch (IOException)
             {
             }
-
-            if (settings.TelegramConfig.UseTelegramAPI)
-                _session.Telegram = new TelegramService(settings.TelegramConfig.TelegramAPIKey, _session);
 
             if (_session.LogicSettings.UseSnipeLocationServer ||
                 _session.LogicSettings.HumanWalkingSnipeUsePogoLocationFeeder)
