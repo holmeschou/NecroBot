@@ -17,7 +17,7 @@ namespace PoGo.NecroBot.Logic.Utils
     {
         public static async Task<PlayerUpdateResponse> UpdatePlayerLocationWithAltitude(ISession session, GeoCoordinate position, float speed)
         {
-            double altitude = session.ElevationService.GetElevation(position.Latitude, position.Longitude);
+            double altitude = session.Navigation.ElevationService.GetElevation(position.Latitude, position.Longitude);
             return await session.Client.Player.UpdatePlayerLocation(position.Latitude, position.Longitude, altitude, speed);
         }
 

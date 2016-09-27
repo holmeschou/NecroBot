@@ -1,5 +1,6 @@
 ﻿using Caching;
 using Newtonsoft.Json;
+using PoGo.NecroBot.Logic.Interfaces.Configuration;
 using PoGo.NecroBot.Logic.Model.Settings;
 using System;
 using System.Collections.Generic;
@@ -29,10 +30,10 @@ namespace PoGo.NecroBot.Logic.Service.Elevation
 
     public class GoogleElevationService : BaseElevationService
     {
-        public GoogleElevationService(GlobalSettings settings, LRUCache<string, double> cache) : base(settings, cache)
+        public GoogleElevationService(ILogicSettings settings, LRUCache<string, double> cache) : base(settings, cache)
         {
-            if (!string.IsNullOrEmpty(settings.GoogleWalkConfig.GoogleElevationAPIKey))
-                _apiKey = settings.GoogleWalkConfig.GoogleElevationAPIKey;
+            if (!string.IsNullOrEmpty(settings.GoogleElevationApiKey))
+                _apiKey = settings.GoogleElevationApiKey;
         }
 
         public override string GetServiceId()

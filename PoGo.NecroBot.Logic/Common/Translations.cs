@@ -9,6 +9,7 @@ using Newtonsoft.Json.Converters;
 using PoGo.NecroBot.Logic.Interfaces.Configuration;
 using PoGo.NecroBot.Logic.Logging;
 using PoGo.NecroBot.Logic.Utils;
+using PoGo.NecroBot.Logic.Model.Settings;
 
 #endregion
 
@@ -977,15 +978,15 @@ namespace PoGo.NecroBot.Logic.Common
             return translation != default(string) ? translation : $"Translation for move {move} is missing";
         }
 
-        public static Translation Load(ILogicSettings logicSettings)
+        public static Translation Load(GlobalSettings globalSettings)
         {
-            return Load(logicSettings, new Translation());
+            return Load(globalSettings, new Translation());
         }
 
-        public static Translation Load(ILogicSettings logicSettings, Translation translations)
+        public static Translation Load(GlobalSettings globalSettings, Translation translations)
         {
-            var translationsLanguageCode = logicSettings.TranslationLanguageCode;
-            var translationPath = Path.Combine(logicSettings.GeneralConfigPath, "translations");
+            var translationsLanguageCode = globalSettings.ConsoleConfig.TranslationLanguageCode;
+            var translationPath = Path.Combine(globalSettings.GeneralConfigPath, "translations");
             var fullPath = Path.Combine(translationPath, "translation." + translationsLanguageCode + ".json");
 
             if (File.Exists(fullPath))

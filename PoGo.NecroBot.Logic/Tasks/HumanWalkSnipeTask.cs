@@ -190,7 +190,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                         Rarity = PokemonGradeHelper.GetPokemonGrade(pokemon.PokemonId).ToString()
                     });
                     var snipeTarget = new SnipeLocation(pokemon.Latitude, pokemon.Longitude,
-                           LocationUtils.getElevation(session.ElevationService, pokemon.Latitude, pokemon.Longitude));
+                           LocationUtils.getElevation(session.Navigation.ElevationService, pokemon.Latitude, pokemon.Longitude));
 
                     await session.Navigation.Move(snipeTarget,
                         async () =>
@@ -240,7 +240,7 @@ namespace PoGo.NecroBot.Logic.Tasks
         private static async Task WalkingBackGPXPath(ISession session, CancellationToken cancellationToken, FortData originalPokestop, FortDetailsResponse fortInfo)
         {
             var destination = new FortLocation(originalPokestop.Latitude, originalPokestop.Longitude,
-                         LocationUtils.getElevation(session.ElevationService, originalPokestop.Latitude, originalPokestop.Longitude), originalPokestop, fortInfo);
+                         LocationUtils.getElevation(session.Navigation.ElevationService, originalPokestop.Latitude, originalPokestop.Longitude), originalPokestop, fortInfo);
             await session.Navigation.Move(destination,
                async () =>
                {

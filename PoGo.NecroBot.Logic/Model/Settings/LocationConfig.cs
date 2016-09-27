@@ -15,15 +15,15 @@ namespace PoGo.NecroBot.Logic.Model.Settings
         [JsonProperty(Required = Required.DisallowNull, DefaultValueHandling = DefaultValueHandling.Populate, Order = 2)]
         public bool StartFromLastPosition = true;
 
-        [DefaultValue(40.785092)]
+        [DefaultValue(25.136871)]
         [Range(-90, 90)]
         [JsonProperty(Required = Required.DisallowNull, DefaultValueHandling = DefaultValueHandling.Populate, Order = 3)]
-        public double DefaultLatitude = 40.785092;
+        public double DefaultLatitude = 25.136871;
 
-        [DefaultValue(-73.968286)]
+        [DefaultValue(121.506355)]
         [Range(-180, 180)]
         [JsonProperty(Required = Required.DisallowNull, DefaultValueHandling = DefaultValueHandling.Populate, Order = 4)]
-        public double DefaultLongitude = -73.968286;
+        public double DefaultLongitude = 121.506355;
 
         [DefaultValue(4.16)]
         [Range(0, 999)]

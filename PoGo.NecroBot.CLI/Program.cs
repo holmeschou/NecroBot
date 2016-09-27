@@ -1,7 +1,6 @@
 #region using directives
 
 using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -9,7 +8,6 @@ using System.Net;
 using System.Reflection;
 using System.Threading;
 using PoGo.NecroBot.CLI.CommandLineUtility;
-using PoGo.NecroBot.CLI.Resources;
 using PoGo.NecroBot.Logic;
 using PoGo.NecroBot.Logic.Common;
 using PoGo.NecroBot.Logic.Event;
@@ -19,7 +17,6 @@ using PoGo.NecroBot.Logic.Service;
 using PoGo.NecroBot.Logic.State;
 using PoGo.NecroBot.Logic.Tasks;
 using PoGo.NecroBot.Logic.Utils;
-using PoGo.NecroBot.Logic.Service.Elevation;
 
 #endregion
 
@@ -88,8 +85,8 @@ namespace PoGo.NecroBot.CLI
 
             Logger.SetLogger(new ConsoleLogger(LogLevel.Service), _subPath);
 
-            //if (!_ignoreKillSwitch && CheckKillSwitch())
-            //    return;
+            if (!_ignoreKillSwitch && CheckKillSwitch())
+                return;
 
             var profilePath = Path.Combine(Directory.GetCurrentDirectory(), _subPath);
             var profileConfigPath = Path.Combine(profilePath, "config");
@@ -140,8 +137,7 @@ namespace PoGo.NecroBot.CLI
                 }
             }
 
-            var logicSettings = new LogicSettings(settings);
-            var translation = Translation.Load(logicSettings);
+            var translation = Translation.Load(settings);
 
             if (settings.GPXConfig.UseGpxPathing)
             {
@@ -181,11 +177,10 @@ namespace PoGo.NecroBot.CLI
                     settings.LocationConfig.ResumeTrackPt = nearestPt.PtIndex;
                 }
             }
-            IElevationService elevationService = new ElevationService(settings);
-            _session = new Session(new ClientSettings(settings, elevationService), logicSettings, elevationService, translation);
-            Logger.SetLoggerContext(_session);
 
-            ProgressBar.Start("NecroBot2 is starting up", 10);
+            var logicSettings = new LogicSettings(settings);
+            _session = new Session(new ClientSettings(settings), logicSettings, translation);
+            Logger.SetLoggerContext(_session);
 
             if (settings.WebsocketsConfig.UseWebsocket)
             {
@@ -194,12 +189,10 @@ namespace PoGo.NecroBot.CLI
             }
 
             _session.Client.ApiFailure = new ApiFailureStrategy(_session);
-            ProgressBar.Fill(20);
 
             var machine = new StateMachine();
             var stats = new Statistics();
 
-            ProgressBar.Fill(30);
             var strVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
             stats.DirtyEvent +=
                 () =>
@@ -207,12 +200,8 @@ namespace PoGo.NecroBot.CLI
                                     stats.GetTemplatedStats(
                                         _session.Translation.GetTranslation(TranslationString.StatsTemplateString),
                                         _session.Translation.GetTranslation(TranslationString.StatsXpTemplateString));
-            ProgressBar.Fill(40);
-
             var aggregator = new StatisticsAggregator(stats);
-            ProgressBar.Fill(50);
             var listener = new ConsoleEventListener();
-            ProgressBar.Fill(60);
             var snipeEventListener = new SniperEventListener();
 
             _session.EventDispatcher.EventReceived += evt => listener.Listen(evt, _session);
@@ -220,20 +209,13 @@ namespace PoGo.NecroBot.CLI
             if (_session.LogicSettings.EnableHumanWalkingSnipe)
                 _session.EventDispatcher.EventReceived += evt => snipeEventListener.Listen(evt, _session);
             
-            ProgressBar.Fill(70);
-
             machine.SetFailureState(new LoginState());
-            ProgressBar.Fill(80);
-
-            ProgressBar.Fill(90);
 
             _session.Navigation.WalkStrategy.UpdatePositionEvent +=
                 (lat, lng) => _session.EventDispatcher.Send(new UpdatePositionEvent { Latitude = lat, Longitude = lng });
             _session.Navigation.WalkStrategy.UpdatePositionEvent += SaveLocationToDisk;
             UseNearbyPokestopsTask.UpdateTimeStampsPokestop += SaveTimeStampsPokestopToDisk;
             CatchPokemonTask.UpdateTimeStampsPokemon += SaveTimeStampsPokemonToDisk;
-
-            ProgressBar.Fill(100);
 
             machine.AsyncStart(new VersionCheckState(), _session, _subPath);
 
@@ -345,7 +327,6 @@ namespace PoGo.NecroBot.CLI
 
             return false;
         }
-
 
         private static void UnhandledExceptionEventHandler(object obj, UnhandledExceptionEventArgs args)
         {

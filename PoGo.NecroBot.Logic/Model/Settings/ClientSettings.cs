@@ -3,7 +3,6 @@ using PoGo.NecroBot.Logic.Utils;
 using PokemonGo.RocketAPI;
 using PokemonGo.RocketAPI.Enums;
 using Google.Protobuf;
-using PoGo.NecroBot.Logic.Service.Elevation;
 
 namespace PoGo.NecroBot.Logic.Model.Settings
 {
@@ -12,17 +11,11 @@ namespace PoGo.NecroBot.Logic.Model.Settings
         // Never spawn at the same position.
         private readonly Random _rand = new Random();
         private readonly GlobalSettings _settings;
-        private readonly IElevationService _elevationService;
 
-        public ClientSettings(GlobalSettings settings, IElevationService elevationService)
+        public ClientSettings(GlobalSettings settings)
         {
             _settings = settings;
-            _elevationService = elevationService;
         }
-
-
-        public string GoogleUsername => _settings.Auth.AuthConfig.GoogleUsername;
-        public string GooglePassword => _settings.Auth.AuthConfig.GooglePassword;
 
         #region Auth Config Values
 
@@ -73,35 +66,30 @@ namespace PoGo.NecroBot.Logic.Model.Settings
         AuthType ISettings.AuthType
         {
             get { return _settings.Auth.AuthConfig.AuthType; }
-
             set { _settings.Auth.AuthConfig.AuthType = value; }
         }
 
         string ISettings.GoogleUsername
         {
             get { return _settings.Auth.AuthConfig.GoogleUsername; }
-
             set { _settings.Auth.AuthConfig.GoogleUsername = value; }
         }
 
         string ISettings.GooglePassword
         {
             get { return _settings.Auth.AuthConfig.GooglePassword; }
-
             set { _settings.Auth.AuthConfig.GooglePassword = value; }
         }
 
         string ISettings.PtcUsername
         {
             get { return _settings.Auth.AuthConfig.PtcUsername; }
-
             set { _settings.Auth.AuthConfig.PtcUsername = value; }
         }
 
         string ISettings.PtcPassword
         {
             get { return _settings.Auth.AuthConfig.PtcPassword; }
-
             set { _settings.Auth.AuthConfig.PtcPassword = value; }
         }
 
@@ -213,7 +201,8 @@ namespace PoGo.NecroBot.Logic.Model.Settings
         {
             get
             {
-                return LocationUtils.getElevation(_elevationService, _settings.LocationConfig.DefaultLatitude, _settings.LocationConfig.DefaultLongitude);
+                //TODO: Use ElevationService here
+                return LocationUtils.getElevation(null, _settings.LocationConfig.DefaultLatitude, _settings.LocationConfig.DefaultLongitude);
             }
             
             set { }

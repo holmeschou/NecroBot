@@ -1,4 +1,5 @@
 ﻿using Caching;
+using PoGo.NecroBot.Logic.Interfaces.Configuration;
 using PoGo.NecroBot.Logic.Model.Settings;
 using System;
 using System.Collections.Generic;
@@ -8,22 +9,22 @@ namespace PoGo.NecroBot.Logic.Service.Elevation
 {
     public class ElevationService : IElevationService
     {
-        private GlobalSettings _settings;
+        private ILogicSettings _settings;
         LRUCache<string, double> cache = new LRUCache<string, double>(capacity: 500);
 
         private List<IElevationService> ElevationServiceQueue = new List<IElevationService>();
         public Dictionary<Type, DateTime> ElevationServiceBlacklist = new Dictionary<Type, DateTime>();
 
-        public ElevationService(GlobalSettings settings)
+        public ElevationService(ILogicSettings settings)
         {
             _settings = settings;
 
-            if (!string.IsNullOrEmpty(settings.MapzenWalkConfig.MapzenElevationApiKey))
+            if (!string.IsNullOrEmpty(settings.MapzenElevationApiKey))
                 ElevationServiceQueue.Add(new MapzenElevationService(settings, cache));
 
             ElevationServiceQueue.Add(new MapQuestElevationService(settings, cache));
 
-            if (!string.IsNullOrEmpty(settings.GoogleWalkConfig.GoogleElevationAPIKey))
+            if (!string.IsNullOrEmpty(settings.GoogleElevationApiKey))
                 ElevationServiceQueue.Add(new GoogleElevationService(settings, cache));
 
             ElevationServiceQueue.Add(new RandomElevationService(settings, cache));

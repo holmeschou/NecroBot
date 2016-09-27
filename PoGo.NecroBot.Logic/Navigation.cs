@@ -13,6 +13,7 @@ using PoGo.NecroBot.Logic.Event;
 using System.Collections.Generic;
 using System.Linq;
 using PoGo.NecroBot.Logic.Model;
+using PoGo.NecroBot.Logic.Service.Elevation;
 
 #endregion
 
@@ -23,6 +24,7 @@ namespace PoGo.NecroBot.Logic
     public class Navigation
     {
         public IWalkStrategy WalkStrategy { get; set; }
+        public IElevationService ElevationService { get; set; }
         private readonly Client _client;
         private Random WalkingRandom = new Random();
         private List<IWalkStrategy> WalkStrategyQueue { get; set; }
@@ -35,6 +37,7 @@ namespace PoGo.NecroBot.Logic
             InitializeWalkStrategies(logicSettings);
             WalkStrategy = GetStrategy(logicSettings);
 
+            ElevationService = new ElevationService(logicSettings);
         }
 
         public double VariantRandom(ISession session, double currentSpeed)

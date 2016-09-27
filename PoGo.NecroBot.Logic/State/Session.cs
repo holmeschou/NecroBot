@@ -10,8 +10,6 @@ using POGOProtos.Networking.Responses;
 using PoGo.NecroBot.Logic.Service.Elevation;
 using System.Collections.Generic;
 using POGOProtos.Map.Fort;
-using System;
-using PokemonGo.RocketAPI.Extensions;
 using PoGo.NecroBot.Logic.Model;
 using System.Threading.Tasks;
 
@@ -31,30 +29,22 @@ namespace PoGo.NecroBot.Logic.State
         IEventDispatcher EventDispatcher { get; }
         TelegramService Telegram { get; set; }
         SessionStats Stats { get; }
-        IElevationService ElevationService { get; set; }
         List<FortData> Forts { get; set; }
         void AddForts(List<FortData> mapObjects);
         Task<bool> WaitUntilActionAccept(BotActions action, int timeout = 30000);
         List<BotActions> Actions { get; }
     }
 
-
     public class Session : ISession
     {
-        public Session(ISettings settings, ILogicSettings logicSettings, IElevationService elevationService) : this(settings, logicSettings, elevationService, Common.Translation.Load(logicSettings))
-        {
-
-        }
         public List<BotActions> Actions { get { return this.botActions; } }
-        public Session(ISettings settings, ILogicSettings logicSettings, IElevationService elevationService, ITranslation translation)
+        public Session(ISettings settings, ILogicSettings logicSettings, ITranslation translation)
         {
             Forts = new List<FortData>();
 
             EventDispatcher = new EventDispatcher();
             LogicSettings = logicSettings;
 
-            this.ElevationService = elevationService;
-            
             Settings = settings;
 
             Translation = translation;
