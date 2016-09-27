@@ -8,10 +8,8 @@ using System.Threading.Tasks;
 using PoGo.NecroBot.Logic.State;
 using System.Threading;
 using PokemonGo.RocketAPI;
-using PoGo.NecroBot.Logic.Interfaces.Configuration;
 using PoGo.NecroBot.Logic.Event;
 using PoGo.NecroBot.Logic.Model;
-using PoGo.NecroBot.Logic.Event.Gym;
 using PoGo.NecroBot.Logic.Model.Settings;
 
 namespace PoGo.NecroBot.Logic.Strategies.Walk

@@ -173,7 +173,6 @@
     <Compile Include="Event\UpdatePositionEvent.cs" />
     <Compile Include="Event\UseBerryEvent.cs" />
     <Compile Include="Event\EggIncubatorStatusEvent.cs" />
-    <Compile Include="Interfaces\Configuration\ILogicSettings.cs" />
     <Compile Include="Inventory.cs" />
     <Compile Include="Localization\Localizer.cs" />
     <Compile Include="Logging\Logger.cs" />
@@ -247,7 +246,6 @@
     <Compile Include="Service\GoogleDirectionsService.cs" />
     <Compile Include="Service\Elevation\GoogleElevationService.cs" />
     <Compile Include="Service\Elevation\MapQuestElevationService.cs" />
-    <Compile Include="Model\Settings\LogicSettings.cs" />
     <Compile Include="Service\MapzenDirectionsService.cs" />
     <Compile Include="Service\YoursDirectionsService.cs" />
     <Compile Include="State\BlockableScope.cs" />

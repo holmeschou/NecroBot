@@ -1,5 +1,4 @@
 ﻿using Caching;
-using PoGo.NecroBot.Logic.Interfaces.Configuration;
 using PoGo.NecroBot.Logic.Model.Settings;
 using System;
 

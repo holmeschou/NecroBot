@@ -1,6 +1,5 @@
 ﻿using Caching;
 using Newtonsoft.Json;
-using PoGo.NecroBot.Logic.Interfaces.Configuration;
 using PoGo.NecroBot.Logic.Model.Settings;
 using System;
 using System.Collections.Generic;
