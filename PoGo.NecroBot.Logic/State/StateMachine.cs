@@ -44,7 +44,7 @@ namespace PoGo.NecroBot.Logic.State
             {
                 if (e.ChangeType == WatcherChangeTypes.Changed)
                 {
-                    session.LogicSettings = new LogicSettings(GlobalSettings.Load(subPath));
+                    session.GlobalSettings = GlobalSettings.Load(subPath);
                     configWatcher.EnableRaisingEvents = !configWatcher.EnableRaisingEvents;
                     configWatcher.EnableRaisingEvents = !configWatcher.EnableRaisingEvents;
                     Logger.Write(" ##### config.json ##### ", LogLevel.Info);

@@ -20,7 +20,6 @@ namespace PoGo.NecroBot.Logic.State
     {
         ISettings Settings { get; set; }
         GlobalSettings GlobalSettings { get; }
-        //ILogicSettings LogicSettings { get; }
         ITranslation Translation { get; }
         Client Client { get; }
         GetPlayerResponse Profile { get; set; }
@@ -37,11 +36,10 @@ namespace PoGo.NecroBot.Logic.State
 
     public class Session : ISession
     {
-        public Session(ISettings settings, GlobalSettings globalSettings, ILogicSettings logicSettings, ITranslation translation)
+        public Session(ISettings settings, GlobalSettings globalSettings, ITranslation translation)
         {
             Settings = settings;
             GlobalSettings = globalSettings;
-            LogicSettings = logicSettings;
             Translation = translation;
 
             Client = new Client(Settings, new ApiFailureStrategy(this));
@@ -57,9 +55,7 @@ namespace PoGo.NecroBot.Logic.State
 
         public ISettings Settings { get; set; }
 
-        public GlobalSettings GlobalSettings { get; private set; }
-
-        public ILogicSettings LogicSettings { get; set; }
+        public GlobalSettings GlobalSettings { get; set; }
 
         public ITranslation Translation { get; }
 

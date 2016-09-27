@@ -178,8 +178,7 @@ namespace PoGo.NecroBot.CLI
                 }
             }
 
-            var logicSettings = new LogicSettings(settings);
-            _session = new Session(new ClientSettings(settings), settings, logicSettings, translation);
+            _session = new Session(new ClientSettings(settings), settings, translation);
             Logger.SetLoggerContext(_session);
 
             if (settings.WebsocketsConfig.UseWebsocket)
@@ -204,7 +203,7 @@ namespace PoGo.NecroBot.CLI
 
             _session.EventDispatcher.EventReceived += evt => listener.Listen(evt, _session);
             _session.EventDispatcher.EventReceived += evt => aggregator.Listen(evt, _session);
-            if (_session.LogicSettings.EnableHumanWalkingSnipe)
+            if (_session.GlobalSettings.HumanWalkSnipeConfig.Enable)
                 _session.EventDispatcher.EventReceived += evt => snipeEventListener.Listen(evt, _session);
             
             machine.SetFailureState(new LoginState());
@@ -225,11 +224,11 @@ namespace PoGo.NecroBot.CLI
             {
             }
 
-            if (_session.LogicSettings.UseSnipeLocationServer ||
-                _session.LogicSettings.HumanWalkingSnipeUsePogoLocationFeeder)
+            if (_session.GlobalSettings.SnipeConfig.UseSnipeLocationServer ||
+                _session.GlobalSettings.HumanWalkSnipeConfig.UsePogoLocationFeeder)
                 SnipePokemonTask.AsyncStart(_session);
 
-            if (_session.LogicSettings.DataSharingEnable)
+            if (_session.GlobalSettings.DataSharingConfig.EnableSyncData)
             {
                 BotDataSocketClient.StartAsync(_session);
                 _session.EventDispatcher.EventReceived += evt => BotDataSocketClient.Listen(evt, _session);
@@ -246,7 +245,7 @@ namespace PoGo.NecroBot.CLI
 
         private static void SaveLocationToDisk(double lat, double lng)
         {
-            var coordsPath = Path.Combine(_session.LogicSettings.ProfileConfigPath, "LastPos.ini");
+            var coordsPath = Path.Combine(_session.GlobalSettings.ProfileConfigPath, "LastPos.ini");
             File.WriteAllText(coordsPath, $"{lat}:{lng}");
         }
 
@@ -254,7 +253,7 @@ namespace PoGo.NecroBot.CLI
         {
             if (_session == null) return;
 
-            var path = Path.Combine(_session.LogicSettings.ProfileConfigPath, "PokestopTS.txt");
+            var path = Path.Combine(_session.GlobalSettings.ProfileConfigPath, "PokestopTS.txt");
             var fileContent = _session.Stats.PokeStopTimestamps.Select(t => t.ToString()).ToList();
 
             if (fileContent.Count > 0)
@@ -265,7 +264,7 @@ namespace PoGo.NecroBot.CLI
         {
             if (_session == null) return;
 
-            var path = Path.Combine(_session.LogicSettings.ProfileConfigPath, "PokemonTS.txt");
+            var path = Path.Combine(_session.GlobalSettings.ProfileConfigPath, "PokemonTS.txt");
 
             var fileContent = _session.Stats.PokemonTimestamps.Select(t => t.ToString()).ToList();
 

@@ -69,7 +69,7 @@ namespace PoGo.NecroBot.CLI
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var socketURL = session.LogicSettings.DataSharingDataUrl;
+            var socketURL = session.GlobalSettings.DataSharingConfig.DataRecieverURL;
 
             using (var ws = new WebSocketSharp.WebSocket(socketURL))
             {
