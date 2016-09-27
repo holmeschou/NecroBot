@@ -208,30 +208,6 @@ namespace PoGo.NecroBot.Logic
                 results.AddRange(pokemons.Take(canBeRemoved));
             }
 
-            #region For testing
-            /*
-                        results.ForEach(data =>
-                        {
-                            var allpokemonoftype = myPokemonList.Where(x => x.PokemonId == data.PokemonId);
-                            var bestPokemonOfType = 
-                                (_logicSettings.PrioritizeIvOverCp
-                                     ? allpokemonoftype
-                                    .OrderByDescending(PokemonInfo.CalculatePokemonPerfection)
-                                    .FirstOrDefault()
-                                     : allpokemonoftype
-                                    .OrderByDescending(x => x.Cp)
-                                    .FirstOrDefault()) 
-                                ?? data;
-
-                            var perfection = PokemonInfo.CalculatePokemonPerfection(data);
-                            var cp = data.Cp;
-
-                            var bestPerfection = PokemonInfo.CalculatePokemonPerfection(bestPokemonOfType);
-                            var bestCp = bestPokemonOfType.Cp;
-                        });
-            */
-            #endregion
-
             return results;
         }
 

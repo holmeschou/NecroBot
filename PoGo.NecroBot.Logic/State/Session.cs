@@ -7,7 +7,6 @@ using PoGo.NecroBot.Logic.Model.Settings;
 using PoGo.NecroBot.Logic.Service;
 using PokemonGo.RocketAPI;
 using POGOProtos.Networking.Responses;
-using PoGo.NecroBot.Logic.Service.Elevation;
 using System.Collections.Generic;
 using POGOProtos.Map.Fort;
 using PoGo.NecroBot.Logic.Model;
@@ -20,10 +19,11 @@ namespace PoGo.NecroBot.Logic.State
     public interface ISession
     {
         ISettings Settings { get; set; }
-        Inventory Inventory { get; }
         Client Client { get; }
+        Inventory Inventory { get; }
         GetPlayerResponse Profile { get; set; }
         Navigation Navigation { get; }
+        GlobalSettings GlobalSettings { get; }
         ILogicSettings LogicSettings { get; }
         ITranslation Translation { get; }
         IEventDispatcher EventDispatcher { get; }
@@ -52,7 +52,7 @@ namespace PoGo.NecroBot.Logic.State
             Stats = new SessionStats();
         }
         public List<FortData> Forts { get; set; }
-        public GlobalSettings GlobalSettings { get; set; }
+        public GlobalSettings GlobalSettings { get; private set; }
 
         public ISettings Settings { get; set; }
 
@@ -73,9 +73,8 @@ namespace PoGo.NecroBot.Logic.State
 
         public SessionStats Stats { get; set; }
 
-        public IElevationService ElevationService { get; set; }
-
         private List<BotActions> botActions = new List<BotActions>();
+
         public void Reset(ISettings settings, ILogicSettings logicSettings)
         {
             ApiFailureStrategy _apiStrategy = new ApiFailureStrategy(this);
@@ -98,7 +97,7 @@ namespace PoGo.NecroBot.Logic.State
         {
             if (botActions.Count == 0) return true;
             var waitTimes = 0;
-            while (true && waitTimes < timeout)
+            while (waitTimes < timeout)
             {
                 if (botActions.Count == 0) return true;
                 ///implement logic of action dependent

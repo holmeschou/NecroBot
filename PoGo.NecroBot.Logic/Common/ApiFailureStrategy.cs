@@ -24,6 +24,11 @@ namespace PoGo.NecroBot.Logic.Common
             _session = session;
         }
 
+        public void HandleApiSuccess()
+        {
+            _retryCount = 0;
+        }
+
         public void HandleApiSuccess(RequestEnvelope request, ResponseEnvelope response)
         {
             if (response.StatusCode == ResponseEnvelope.Types.StatusCode.BadRequest)
@@ -49,6 +54,22 @@ namespace PoGo.NecroBot.Logic.Common
             }
 
             _retryCount = 0;
+        }
+
+        public async Task<ApiOperation> HandleApiFailure()
+        {
+            if (_retryCount == 11)
+                return ApiOperation.Abort;
+
+            await Task.Delay(500);
+            _retryCount++;
+
+            if (_retryCount % 5 == 0)
+            {
+                DoLogin();
+            }
+
+            return ApiOperation.Retry;
         }
 
         public async Task<ApiOperation> HandleApiFailure(RequestEnvelope request, ResponseEnvelope response)
@@ -80,27 +101,6 @@ namespace PoGo.NecroBot.Logic.Common
             }
 
             return ApiOperation.Retry;
-        }
-
-        public async Task<ApiOperation> HandleApiFailure()
-        {
-            if (_retryCount == 11)
-                return ApiOperation.Abort;
-
-            await Task.Delay(500);
-            _retryCount++;
-
-            if (_retryCount%5 == 0)
-            {
-                DoLogin();
-            }
-
-            return ApiOperation.Retry;
-        }
-
-        public void HandleApiSuccess()
-        {
-            _retryCount = 0;
         }
 
         private async void DoLogin()
