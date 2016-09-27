@@ -35,14 +35,14 @@ namespace PoGo.NecroBot.Logic.Tasks
          private static async Task<List<SnipePokemonInfo>> FetchFromPokecrew(double lat, double lng)
         {
             List<SnipePokemonInfo> results = new List<SnipePokemonInfo>();
-            if (!_setting.HumanWalkingSnipeUsePokecrew) return results;
+            if (!_session.GlobalSettings.HumanWalkSnipeConfig.UsePokecrew) return results;
 
             //var startFetchTime = DateTime.Now;
 
             try
             {
                 HttpClient client = new HttpClient();
-                double offset = _setting.HumanWalkingSnipeSnipingScanOffset; //0.015 
+                double offset = _session.GlobalSettings.HumanWalkSnipeConfig.SnipingScanOffset;
                 string url = $"https://api.pokecrew.com/api/v1/seens?center_latitude={lat}&center_longitude={lng}&live=true&minimal=false&northeast_latitude={lat + offset}&northeast_longitude={lng + offset}&pokemon_id=&southwest_latitude={lat - offset}&southwest_longitude={lng - offset}";
 
                 var task = await client.GetStringAsync(url);

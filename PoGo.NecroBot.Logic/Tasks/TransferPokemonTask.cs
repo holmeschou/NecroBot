@@ -29,7 +29,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                 await session.Client.Inventory.TransferPokemon(pokemonId);
                 await session.Inventory.DeletePokemonFromInvById(pokemonId);
 
-                var bestPokemonOfType = (session.LogicSettings.PrioritizeIvOverCp
+                var bestPokemonOfType = (session.GlobalSettings.PokemonConfig.PrioritizeIvOverCp
                     ? await session.Inventory.GetHighestPokemonOfTypeByIv(pokemon)
                     : await session.Inventory.GetHighestPokemonOfTypeByCp(pokemon)) ?? pokemon;
 
@@ -49,7 +49,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                     FamilyCandies = family.Candy_
                 });
 
-                DelayingUtils.Delay(session.LogicSettings.TransferActionDelay, 0);
+                DelayingUtils.Delay(session.GlobalSettings.PlayerConfig.TransferActionDelay, 0);
             }
         }
     }

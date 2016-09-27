@@ -26,7 +26,7 @@ namespace PoGo.NecroBot.Logic.Utils
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (!_session.LogicSettings.UseEggIncubators)
+            if (!_session.GlobalSettings.PokemonConfig.UseEggIncubators)
                 return;
 
             _distanceTraveled += distanceTraveled;

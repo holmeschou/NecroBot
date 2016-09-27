@@ -41,10 +41,10 @@ namespace PoGo.NecroBot.Logic.Service
 
         private string GetUrl(GeoCoordinate sourceLocation, GeoCoordinate destLocation)
         {
-            string url = "http://valhalla.mapzen.com/route?json={\"locations\":" + "[{\"lat\":" + sourceLocation.Latitude + ",\"lon\":" + sourceLocation.Longitude + "},{\"lat\":" + destLocation.Latitude + ",\"lon\":" + destLocation.Longitude + "}]," + $"\"costing\":\"{_session.LogicSettings.MapzenWalkHeuristic}\",\"directions_options\":" + "{\"narrative\":\"false\"}}";
+            string url = "http://valhalla.mapzen.com/route?json={\"locations\":" + "[{\"lat\":" + sourceLocation.Latitude + ",\"lon\":" + sourceLocation.Longitude + "},{\"lat\":" + destLocation.Latitude + ",\"lon\":" + destLocation.Longitude + "}]," + $"\"costing\":\"{_session.GlobalSettings.MapzenWalkConfig.MapzenWalkHeuristic}\",\"directions_options\":" + "{\"narrative\":\"false\"}}";
 
-            if (!string.IsNullOrEmpty(_session.LogicSettings.MapzenTurnByTurnApiKey))
-                url += $"&api_key={_session.LogicSettings.MapzenTurnByTurnApiKey}";
+            if (!string.IsNullOrEmpty(_session.GlobalSettings.MapzenWalkConfig.MapzenTurnByTurnApiKey))
+                url += $"&api_key={_session.GlobalSettings.MapzenWalkConfig.MapzenTurnByTurnApiKey}";
 
             return url;
         }

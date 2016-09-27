@@ -43,8 +43,8 @@ namespace PoGo.NecroBot.Logic.Service
         {
             string url = $"http://www.yournavigation.org/api/dev/route.php?format=geojson&flat={sourceLocation.Latitude}&flon={sourceLocation.Longitude}&tlat={destLocation.Latitude}&tlon={destLocation.Longitude}&fast=1&layer=mapnik";
             
-            if (!string.IsNullOrEmpty(_session.LogicSettings.YoursWalkHeuristic))
-                url += $"&v={_session.LogicSettings.YoursWalkHeuristic}";
+            if (!string.IsNullOrEmpty(_session.GlobalSettings.YoursWalkConfig.YoursWalkHeuristic))
+                url += $"&v={_session.GlobalSettings.YoursWalkConfig.YoursWalkHeuristic}";
             else
                 url += $"&v=bicycle";
 

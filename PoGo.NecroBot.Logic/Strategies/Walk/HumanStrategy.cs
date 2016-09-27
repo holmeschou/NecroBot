@@ -28,8 +28,8 @@ namespace PoGo.NecroBot.Logic.Strategies.Walk
             var destinaionCoordinate = new GeoCoordinate(targetLocation.Latitude, targetLocation.Longitude);
             
             if (CurrentWalkingSpeed <= 0)
-                CurrentWalkingSpeed = session.LogicSettings.WalkingSpeedInKilometerPerHour;
-            if (session.LogicSettings.UseWalkingSpeedVariant && walkSpeed == 0)
+                CurrentWalkingSpeed = session.GlobalSettings.LocationConfig.WalkingSpeedInKilometerPerHour;
+            if (session.GlobalSettings.LocationConfig.UseWalkingSpeedVariant && walkSpeed == 0)
                 CurrentWalkingSpeed = session.Navigation.VariantRandom(session, CurrentWalkingSpeed);
 
             var rw = new Random();
@@ -64,7 +64,7 @@ namespace PoGo.NecroBot.Logic.Strategies.Walk
                     if (speedInMetersPerSecond > SpeedDownTo)
                         speedInMetersPerSecond = SpeedDownTo;
 
-                if (session.LogicSettings.UseWalkingSpeedVariant && walkSpeed == 0)
+                if (session.GlobalSettings.LocationConfig.UseWalkingSpeedVariant && walkSpeed == 0)
                 {
                     CurrentWalkingSpeed = session.Navigation.VariantRandom(session, CurrentWalkingSpeed);
                 }

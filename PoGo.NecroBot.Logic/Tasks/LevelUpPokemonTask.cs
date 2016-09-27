@@ -34,7 +34,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
             if (upgradeResult.UpgradedPokemon != null)
             {
-                var bestPokemonOfType = (session.LogicSettings.PrioritizeIvOverCp
+                var bestPokemonOfType = (session.GlobalSettings.PokemonConfig.PrioritizeIvOverCp
                     ? await session.Inventory.GetHighestPokemonOfTypeByIv(upgradeResult.UpgradedPokemon)
                     : await session.Inventory.GetHighestPokemonOfTypeByCp(upgradeResult.UpgradedPokemon)) ?? upgradeResult.UpgradedPokemon;
 
@@ -60,7 +60,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
             await session.Inventory.RefreshCachedInventory();
 
-            if (session.Inventory.GetStarDust() <= session.LogicSettings.GetMinStarDustForLevelUp)
+            if (session.Inventory.GetStarDust() <= session.GlobalSettings.PokemonConfig.GetMinStarDustForLevelUp)
                 return;
             upgradablePokemon = await session.Inventory.GetPokemonToUpgrade();
                       
@@ -74,12 +74,12 @@ namespace PoGo.NecroBot.Logic.Tasks
             var pokemonFamilies = myPokemonFamilies.ToList();
 
             var upgradedNumber = 0;
-            var PokemonToLevel = session.LogicSettings.PokemonsToLevelUp.ToList();
-            PokemonToLevel.AddRange(session.LogicSettings.PokemonUpgradeFilters.Select(p => p.Key));
+            var PokemonToLevel = session.GlobalSettings.PokemonsToLevelUp.ToList();
+            PokemonToLevel.AddRange(session.GlobalSettings.PokemonUpgradeFilters.Select(p => p.Key));
             foreach (var pokemon in upgradablePokemon)
             {
                 //code seem wrong. need need refactore to cleanup code here.
-                if (session.LogicSettings.UseLevelUpList && PokemonToLevel!=null)
+                if (session.GlobalSettings.PokemonConfig.UseLevelUpList && PokemonToLevel!=null)
                 {
                     for (int i = 0; i < PokemonToLevel.Count; i++)
                     {
@@ -87,9 +87,9 @@ namespace PoGo.NecroBot.Logic.Tasks
                         if (PokemonToLevel.Contains(pokemon.PokemonId))
                         {
                             await UpgradeSinglePokemon(session, pokemon, pokemonFamilies, pokemonSettings);
-                            if (upgradedNumber >= session.LogicSettings.AmountOfTimesToUpgradeLoop)
+                            if (upgradedNumber >= session.GlobalSettings.PokemonConfig.AmountOfTimesToUpgradeLoop)
                                 break;
-                            await Task.Delay(session.LogicSettings.DelayBetweenPokemonUpgrade);
+                            await Task.Delay(session.GlobalSettings.PokemonConfig.DelayBetweenPokemonUpgrade);
                             upgradedNumber++;
                         }
                         else
@@ -101,7 +101,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                 else
                 {
                     await UpgradeSinglePokemon(session, pokemon, pokemonFamilies, pokemonSettings); ;
-                    await Task.Delay(session.LogicSettings.DelayBetweenPlayerActions);
+                    await Task.Delay(session.GlobalSettings.PlayerConfig.DelayBetweenPlayerActions);
                 }
             }
         }

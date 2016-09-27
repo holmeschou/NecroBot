@@ -123,7 +123,7 @@ namespace PoGo.NecroBot.Logic.Tasks
         private static async Task<List<SnipePokemonInfo>> FetchFromFastPokemap(double lat, double lng)
         {
             List<SnipePokemonInfo> results = new List<SnipePokemonInfo>();
-            if (!_setting.HumanWalkingSnipeUseFastPokemap) return results;
+            if (!_session.GlobalSettings.HumanWalkSnipeConfig.UseFastPokemap) return results;
 
             //var startFetchTime = DateTime.Now;
 

@@ -29,7 +29,7 @@ namespace PoGo.NecroBot.Logic.Strategies.Walk
         {
             GetGoogleInstance(session);
 
-            _minStepLengthInMeters = session.LogicSettings.DefaultStepLength;
+            _minStepLengthInMeters = session.GlobalSettings.GoogleWalkConfig.DefaultStepLength;
             var currentLocation = new GeoCoordinate(_client.CurrentLatitude, _client.CurrentLongitude, _client.CurrentAltitude);
             var destinaionCoordinate = new GeoCoordinate(targetLocation.Latitude, targetLocation.Longitude);
 
@@ -37,7 +37,7 @@ namespace PoGo.NecroBot.Logic.Strategies.Walk
 
             if (googleWalk == null)
             {
-                return await RedirectToNextFallbackStrategy(session.LogicSettings, targetLocation, functionExecutedWhileWalking, session, cancellationToken, walkSpeed);
+                return await RedirectToNextFallbackStrategy(session.GlobalSettings, targetLocation, functionExecutedWhileWalking, session, cancellationToken, walkSpeed);
             }
             
             base.OnStartWalking(session, targetLocation, googleWalk.Distance);

@@ -49,9 +49,6 @@ namespace PoGo.NecroBot.Logic.Model.Settings
         public LocationConfig LocationConfig = new LocationConfig();
 
         [JsonProperty(Required = Required.DisallowNull, DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public TelegramConfig TelegramConfig = new TelegramConfig();
-
-        [JsonProperty(Required = Required.DisallowNull, DefaultValueHandling = DefaultValueHandling.Ignore)]
         public GpxConfig GPXConfig = new GpxConfig();
 
         [JsonProperty(Required = Required.DisallowNull, DefaultValueHandling = DefaultValueHandling.Ignore)]

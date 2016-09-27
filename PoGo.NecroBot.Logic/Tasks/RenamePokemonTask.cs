@@ -33,17 +33,17 @@ namespace PoGo.NecroBot.Logic.Tasks
                 // iv number + templating part + pokemonName <= 12
                 var nameLength = 12 -
                                  (perfection.ToString(CultureInfo.InvariantCulture).Length +
-                                  session.LogicSettings.RenameTemplate.Length - 6);
+                                  session.GlobalSettings.PokemonConfig.RenameTemplate.Length - 6);
                 if (pokemonName.Length > nameLength)
                 {
                     pokemonName = pokemonName.Substring(0, nameLength);
                 }
-                var newNickname = string.Format(session.LogicSettings.RenameTemplate, pokemonName, perfection);
+                var newNickname = string.Format(session.GlobalSettings.PokemonConfig.RenameTemplate, pokemonName, perfection);
                 var oldNickname = pokemon.Nickname.Length != 0 ? pokemon.Nickname : pokemon.PokemonId.ToString();
 
                 // If "RenameOnlyAboveIv" = true only rename pokemon with IV over "KeepMinIvPercentage"
                 // Favorites will be skipped
-                if ((!session.LogicSettings.RenameOnlyAboveIv || perfection >= session.LogicSettings.KeepMinIvPercentage) &&
+                if ((!session.GlobalSettings.PokemonConfig.RenameOnlyAboveIv || perfection >= session.GlobalSettings.PokemonConfig.KeepMinIvPercentage) &&
                     newNickname != oldNickname && pokemon.Favorite == 0)
                 {
                     await session.Client.Inventory.NicknamePokemon(pokemon.Id, newNickname);
@@ -56,7 +56,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                     });
                 }
 
-                DelayingUtils.Delay(session.LogicSettings.RenamePokemonActionDelay, 500);
+                DelayingUtils.Delay(session.GlobalSettings.PlayerConfig.RenamePokemonActionDelay, 500);
             }
         }
     }

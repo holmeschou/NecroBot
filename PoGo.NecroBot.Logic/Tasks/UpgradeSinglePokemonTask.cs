@@ -33,7 +33,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
             var upgradeResult = await session.Inventory.UpgradePokemon(pokemon.Id);
 
-            var bestPokemonOfType = (session.LogicSettings.PrioritizeIvOverCp
+            var bestPokemonOfType = (session.GlobalSettings.PokemonConfig.PrioritizeIvOverCp
     ? await session.Inventory.GetHighestPokemonOfTypeByIv(upgradeResult.UpgradedPokemon)
     : await session.Inventory.GetHighestPokemonOfTypeByCp(upgradeResult.UpgradedPokemon)) ?? upgradeResult.UpgradedPokemon;
 
@@ -59,7 +59,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                 if (!await block.WaitToRun()) return;
                 await session.Inventory.RefreshCachedInventory();
 
-                if (session.Inventory.GetStarDust() <= session.LogicSettings.GetMinStarDustForLevelUp)
+                if (session.Inventory.GetStarDust() <= session.GlobalSettings.PokemonConfig.GetMinStarDustForLevelUp)
                     return;
                 var pokemonToUpgrade = await session.Inventory.GetSinglePokemon(pokemonId);
 
@@ -85,7 +85,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                         upgradable = await UpgradeSinglePokemon(session, pokemonToUpgrade, pokemonFamilies, pokemonSettings); ;
                         if (upgradable)
                         {
-                            await Task.Delay(session.LogicSettings.DelayBetweenPokemonUpgrade);
+                            await Task.Delay(session.GlobalSettings.PokemonConfig.DelayBetweenPokemonUpgrade);
                         }
                         upgradeTimes++;
 
@@ -95,7 +95,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                         //make sure no exception happen
                     }
                 }
-                while (upgradable && (isMax || upgradeTimes < session.LogicSettings.AmountOfTimesToUpgradeLoop));
+                while (upgradable && (isMax || upgradeTimes < session.GlobalSettings.PokemonConfig.AmountOfTimesToUpgradeLoop));
 
             }
         }

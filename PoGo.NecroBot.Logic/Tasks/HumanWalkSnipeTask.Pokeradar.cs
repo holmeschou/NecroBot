@@ -26,14 +26,14 @@ namespace PoGo.NecroBot.Logic.Tasks
         private static async Task<List<SnipePokemonInfo>> FetchFromPokeradar(double lat, double lng)
         {
             List<SnipePokemonInfo> results = new List<SnipePokemonInfo>();
-            if (!_setting.HumanWalkingSnipeUsePokeRadar) return results;
+            if (!_session.GlobalSettings.HumanWalkSnipeConfig.UsePokeRadar) return results;
 
             //var startFetchTime = DateTime.Now;
 
             try
             {
                 HttpClient client = new HttpClient();
-                double offset = _setting.HumanWalkingSnipeSnipingScanOffset; //0.015 
+                double offset = _session.GlobalSettings.HumanWalkSnipeConfig.SnipingScanOffset; //0.015 
                 string url = $"https://www.pokeradar.io/api/v1/submissions?deviceId=1fd29370661111e6b850a13a2bdc4ebf&minLatitude={lat - offset}&maxLatitude={lat + offset}&minLongitude={lng - offset}&maxLongitude={lng + offset}&pokemonId=0";
 
                 var task = await client.GetStringAsync(url);

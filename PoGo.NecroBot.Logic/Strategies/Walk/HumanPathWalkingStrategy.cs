@@ -27,8 +27,8 @@ namespace PoGo.NecroBot.Logic.Strategies.Walk
             //PlayerUpdateResponse result = null;
 
             if (CurrentWalkingSpeed <= 0)
-                CurrentWalkingSpeed = session.LogicSettings.WalkingSpeedInKilometerPerHour;
-            if (session.LogicSettings.UseWalkingSpeedVariant && walkSpeed == 0)
+                CurrentWalkingSpeed = session.GlobalSettings.LocationConfig.WalkingSpeedInKilometerPerHour;
+            if (session.GlobalSettings.LocationConfig.UseWalkingSpeedVariant && walkSpeed == 0)
                 CurrentWalkingSpeed = session.Navigation.VariantRandom(session, CurrentWalkingSpeed);
 
             var rw = new Random();
@@ -58,16 +58,7 @@ namespace PoGo.NecroBot.Logic.Strategies.Walk
                 sourceLocation = new GeoCoordinate(_client.CurrentLatitude, _client.CurrentLongitude);
                 var currentDistanceToTarget = LocationUtils.CalculateDistanceInMeters(sourceLocation, destinaionCoordinate);
 
-                //if (currentDistanceToTarget < 40)
-                //{
-                //    if (speedInMetersPerSecond > SpeedDownTo)
-                //    {
-                //        //Logger.Write("We are within 40 meters of the target. Speeding down to 10 km/h to not pass the target.", LogLevel.Info);
-                //        speedInMetersPerSecond = SpeedDownTo;
-                //    }
-                //}
-
-                if (session.LogicSettings.UseWalkingSpeedVariant && walkSpeed == 0)
+                if (session.GlobalSettings.LocationConfig.UseWalkingSpeedVariant && walkSpeed == 0)
                 {
                     CurrentWalkingSpeed = session.Navigation.VariantRandom(session, CurrentWalkingSpeed);
                     speedInMetersPerSecond =  CurrentWalkingSpeed / 3.6;

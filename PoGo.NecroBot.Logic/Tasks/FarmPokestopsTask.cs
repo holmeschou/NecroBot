@@ -32,8 +32,8 @@ namespace PoGo.NecroBot.Logic.Tasks
                 session.Client.CurrentLatitude, session.Client.CurrentLongitude);
 
             // Edge case for when the client somehow ends up outside the defined radius
-            if (session.LogicSettings.MaxTravelDistanceInMeters != 0 && checkForMoveBackToDefault &&
-                distanceFromStart > session.LogicSettings.MaxTravelDistanceInMeters)
+            if (session.GlobalSettings.LocationConfig.MaxTravelDistanceInMeters != 0 && checkForMoveBackToDefault &&
+                distanceFromStart > session.GlobalSettings.LocationConfig.MaxTravelDistanceInMeters)
             {
                 checkForMoveBackToDefault = false;
                 Logger.Write(
@@ -50,7 +50,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                 await session.Navigation.Move(defaultLocation,
                     async () =>
                     {
-                        if (session.LogicSettings.ActivateMSniper)
+                        if (session.GlobalSettings.SnipeConfig.ActivateMSniper)
                         {
                             await MSniperServiceTask.Execute(session, cancellationToken);
                         }

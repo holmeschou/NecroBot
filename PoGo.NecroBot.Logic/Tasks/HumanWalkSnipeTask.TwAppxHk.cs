@@ -32,7 +32,7 @@ namespace PoGo.NecroBot.Logic.Tasks
          private static async Task<List<SnipePokemonInfo>> FetchFromTwAppxHk(double lat, double lng)
         {
             List<SnipePokemonInfo> results = new List<SnipePokemonInfo>();
-            if (!_setting.HumanWalkingSnipeUseTwAppxHk) return results;
+            if (!_session.GlobalSettings.HumanWalkSnipeConfig.UseTwAppxHk) return results;
 
             //var startFetchTime = DateTime.Now;
 
@@ -45,7 +45,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                     AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate
                 };
                 var client = new HttpClient(handler) { BaseAddress = baseAddress };
-                double offset = _setting.HumanWalkingSnipeSnipingScanOffset;
+                double offset = _session.GlobalSettings.HumanWalkSnipeConfig.SnipingScanOffset;
 
                 var message = new HttpRequestMessage(HttpMethod.Get, $"http://tw-pogo.appx.hk/");
                 message.Headers.Host = "tw-pogo.appx.hk";

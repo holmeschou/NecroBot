@@ -21,15 +21,15 @@ namespace PoGo.NecroBot.Logic.Tasks
         public static async Task Execute(ISession session, FortData currentFortData, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            if (!session.LogicSettings.CatchPokemon) return;
+            if (!session.GlobalSettings.PokemonConfig.CatchPokemon) return;
 
             Logger.Write(session.Translation.GetTranslation(TranslationString.LookingForLurePokemon), LogLevel.Debug);
 
             var fortId = currentFortData.Id;
             var pokemonId = currentFortData.LureInfo.ActivePokemonId;
 			
-            if( ( session.LogicSettings.UsePokemonSniperFilterOnly && !session.LogicSettings.PokemonToSnipe.Pokemon.Contains( pokemonId ) ) ||
-                    ( session.LogicSettings.UsePokemonToNotCatchFilter && session.LogicSettings.PokemonsNotToCatch.Contains( pokemonId ) ) )
+            if( ( session.GlobalSettings.PokemonConfig.UsePokemonSniperFilterOnly && !session.GlobalSettings.PokemonToSnipe.Pokemon.Contains( pokemonId ) ) ||
+                    ( session.GlobalSettings.PokemonConfig.UsePokemonToNotCatchFilter && session.GlobalSettings.PokemonsToIgnore.Contains( pokemonId ) ) )
             {
                 session.EventDispatcher.Send(new NoticeEvent
                 {
@@ -41,7 +41,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                 var encounterId = currentFortData.LureInfo.EncounterId;
                 var encounter = await session.Client.Encounter.EncounterLurePokemon(encounterId, fortId);
 
-                if (encounter.Result == DiskEncounterResponse.Types.Result.Success && session.LogicSettings.CatchPokemon)
+                if (encounter.Result == DiskEncounterResponse.Types.Result.Success && session.GlobalSettings.PokemonConfig.CatchPokemon)
                 {
 					var pokemon = new MapPokemon
 					{
@@ -60,15 +60,15 @@ namespace PoGo.NecroBot.Logic.Tasks
                 }
                 else if (encounter.Result == DiskEncounterResponse.Types.Result.PokemonInventoryFull)
                 {
-					if (session.LogicSettings.TransferDuplicatePokemon || session.LogicSettings.TransferWeakPokemon)
+					if (session.GlobalSettings.PokemonConfig.TransferDuplicatePokemon || session.GlobalSettings.PokemonConfig.TransferWeakPokemon)
 					{
 						session.EventDispatcher.Send(new WarnEvent
 						{
 							Message = session.Translation.GetTranslation(TranslationString.InvFullTransferring)
 						});
-						if(session.LogicSettings.TransferDuplicatePokemon)
+						if(session.GlobalSettings.PokemonConfig.TransferDuplicatePokemon)
 							await TransferDuplicatePokemonTask.Execute(session, cancellationToken);
-						if(session.LogicSettings.TransferWeakPokemon)
+						if(session.GlobalSettings.PokemonConfig.TransferWeakPokemon)
 							await TransferWeakPokemonTask.Execute(session, cancellationToken);
 					}
                     else
@@ -95,7 +95,7 @@ namespace PoGo.NecroBot.Logic.Tasks
             // Looking for any lure pokestop neaby
 
             var mapObjects = await session.Client.Map.GetMapObjects();
-            if (session.LogicSettings.EnableHumanWalkingSnipe)
+            if (session.GlobalSettings.HumanWalkSnipeConfig.Enable)
             {
                 var pokeStops = mapObjects.Item1.MapCells.SelectMany(i => i.Forts)
                     .Where(

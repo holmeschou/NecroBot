@@ -172,9 +172,9 @@ namespace PoGo.NecroBot.CLI
                 {
                     settings.LocationConfig.DefaultLatitude = nearestPt.Latitude;
                     settings.LocationConfig.DefaultLongitude = nearestPt.Longitude;
-                    settings.LocationConfig.ResumeTrack = nearestPt.TrackIndex;
-                    settings.LocationConfig.ResumeTrackSeg = nearestPt.SegIndex;
-                    settings.LocationConfig.ResumeTrackPt = nearestPt.PtIndex;
+                    settings.GPXConfig.ResumeTrack = nearestPt.TrackIndex;
+                    settings.GPXConfig.ResumeTrackSeg = nearestPt.SegIndex;
+                    settings.GPXConfig.ResumeTrackPt = nearestPt.PtIndex;
                 }
             }
 
@@ -187,8 +187,6 @@ namespace PoGo.NecroBot.CLI
                 var websocket = new WebSocketInterface(settings.WebsocketsConfig.WebSocketPort, _session);
                 _session.EventDispatcher.EventReceived += evt => websocket.Listen(evt, _session);
             }
-
-            _session.Client.ApiFailure = new ApiFailureStrategy(_session);
 
             var machine = new StateMachine();
             var stats = new Statistics();

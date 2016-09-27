@@ -24,7 +24,7 @@ namespace PoGo.NecroBot.Logic.Tasks
         public static async Task Execute(ISession session, CancellationToken cancellationToken, PokemonId priority = PokemonId.Missingno, bool sessionAllowTransfer = true)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            if (!session.LogicSettings.CatchPokemon) return;
+            if (!session.GlobalSettings.PokemonConfig.CatchPokemon) return;
 
             Logger.Write(session.Translation.GetTranslation(TranslationString.LookingForPokemon), LogLevel.Debug);
 
@@ -35,7 +35,7 @@ namespace PoGo.NecroBot.Logic.Tasks
             foreach (var pokemon in pokemons)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                if (session.LogicSettings.ActivateMSniper)
+                if (session.GlobalSettings.SnipeConfig.ActivateMSniper)
                 {
                     await MSniperServiceTask.Execute(session, cancellationToken);
                 }
@@ -58,8 +58,8 @@ namespace PoGo.NecroBot.Logic.Tasks
                     return;
                 }
 
-                if ((session.LogicSettings.UsePokemonSniperFilterOnly && !session.LogicSettings.PokemonToSnipe.Pokemon.Contains(pokemon.PokemonId)) ||
-                    (session.LogicSettings.UsePokemonToNotCatchFilter && session.LogicSettings.PokemonsNotToCatch.Contains(pokemon.PokemonId)))
+                if ((session.GlobalSettings.PokemonConfig.UsePokemonSniperFilterOnly && !session.GlobalSettings.PokemonToSnipe.Pokemon.Contains(pokemon.PokemonId)) ||
+                    (session.GlobalSettings.PokemonConfig.UsePokemonToNotCatchFilter && session.GlobalSettings.PokemonsToIgnore.Contains(pokemon.PokemonId)))
                 {
                     Logger.Write(session.Translation.GetTranslation(TranslationString.PokemonSkipped, session.Translation.GetPokemonTranslation(pokemon.PokemonId)));
                     continue;
@@ -72,7 +72,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                 var encounter =
                     await session.Client.Encounter.EncounterPokemon(pokemon.EncounterId, pokemon.SpawnPointId);
 
-                if (encounter.Status == EncounterResponse.Types.Status.EncounterSuccess && session.LogicSettings.CatchPokemon)
+                if (encounter.Status == EncounterResponse.Types.Status.EncounterSuccess && session.GlobalSettings.PokemonConfig.CatchPokemon)
                 {
 
                     // Catch the Pokemon
@@ -82,15 +82,15 @@ namespace PoGo.NecroBot.Logic.Tasks
                 }
                 else if (encounter.Status == EncounterResponse.Types.Status.PokemonInventoryFull)
                 {
-                    if (session.LogicSettings.TransferDuplicatePokemon || session.LogicSettings.TransferWeakPokemon)
+                    if (session.GlobalSettings.PokemonConfig.TransferDuplicatePokemon || session.GlobalSettings.PokemonConfig.TransferWeakPokemon)
                     {
                         session.EventDispatcher.Send(new WarnEvent
                         {
                             Message = session.Translation.GetTranslation(TranslationString.InvFullTransferring)
                         });
-                        if (session.LogicSettings.TransferDuplicatePokemon)
+                        if (session.GlobalSettings.PokemonConfig.TransferDuplicatePokemon)
                             await TransferDuplicatePokemonTask.Execute(session, cancellationToken);
-                        if (session.LogicSettings.TransferWeakPokemon)
+                        if (session.GlobalSettings.PokemonConfig.TransferWeakPokemon)
                             await TransferWeakPokemonTask.Execute(session, cancellationToken);
                     }
                     else
@@ -111,7 +111,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                 // If pokemon is not last pokemon in list, create delay between catches, else keep moving.
                 if (!Equals(pokemons.ElementAtOrDefault(pokemons.Count() - 1), pokemon))
                 {
-                    await Task.Delay(session.LogicSettings.DelayBetweenPokemonCatch, cancellationToken);
+                    await Task.Delay(session.GlobalSettings.PokemonConfig.DelayBetweenPokemonCatch, cancellationToken);
                 }
             }
         }
@@ -119,7 +119,7 @@ namespace PoGo.NecroBot.Logic.Tasks
         public static async Task<IOrderedEnumerable<MapPokemon>> GetNearbyPokemons(ISession session)
         {
             var mapObjects = await session.Client.Map.GetMapObjects();
-            if (session.LogicSettings.EnableHumanWalkingSnipe)
+            if (session.GlobalSettings.HumanWalkSnipeConfig.Enable)
             {
                 var pokeStops = mapObjects.Item1.MapCells.SelectMany(i => i.Forts)
                     .Where(

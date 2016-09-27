@@ -38,7 +38,7 @@ namespace PoGo.NecroBot.Logic.Tasks
          private static async Task<List<SnipePokemonInfo>> FetchFromPoke5566(double lat, double lng)
         {
             List<SnipePokemonInfo> results = new List<SnipePokemonInfo>();
-            if (!_setting.HumanWalkingSnipeUsePoke5566) return results;
+            if (!_session.GlobalSettings.HumanWalkSnipeConfig.UsePoke5566) return results;
 
             //var startFetchTime = DateTime.Now;
 
@@ -51,7 +51,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                     AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate
                 };
                 var client = new HttpClient(handler) { BaseAddress = baseAddress };
-                double offset = _setting.HumanWalkingSnipeSnipingScanOffset;
+                double offset = _session.GlobalSettings.HumanWalkSnipeConfig.SnipingScanOffset;
 
                 var message = new HttpRequestMessage(HttpMethod.Get, $"https://poke5566.com/pokemons?lat0={lat + offset}&lng0={lng + offset}&lat1={lat - offset}&lng1={lng - offset}");
                 message.Headers.Host = "poke5566.com";

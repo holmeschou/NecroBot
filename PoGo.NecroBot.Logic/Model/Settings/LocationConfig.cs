@@ -56,12 +56,5 @@ namespace PoGo.NecroBot.Logic.Model.Settings
         [Range(0, 9999)]
         [JsonProperty(Required = Required.DisallowNull, DefaultValueHandling = DefaultValueHandling.Populate, Order = 11)]
         public int MaxTravelDistanceInMeters = 1000;
-
-        [JsonIgnore]
-        public int ResumeTrack = 0;
-        [JsonIgnore]
-        public int ResumeTrackSeg = 0;
-        [JsonIgnore]
-        public int ResumeTrackPt = 0;
     }
 }

@@ -22,38 +22,38 @@ namespace PoGo.NecroBot.Logic.Tasks
                 switch (randomCommand[i])
                 {
                     case 1:
-                        if (session.LogicSettings.EvolveAllPokemonAboveIv || session.LogicSettings.EvolveAllPokemonWithEnoughCandy
-                            || session.LogicSettings.UseLuckyEggsWhileEvolving || session.LogicSettings.KeepPokemonsThatCanEvolve)
+                        if (session.GlobalSettings.PokemonConfig.EvolveAllPokemonAboveIv || session.GlobalSettings.PokemonConfig.EvolveAllPokemonWithEnoughCandy
+                            || session.GlobalSettings.PokemonConfig.UseLuckyEggsWhileEvolving || session.GlobalSettings.PokemonConfig.KeepPokemonsThatCanEvolve)
                             if (ActionRandom.Next(1, 10) > 4)
                                 await EvolvePokemonTask.Execute(session, cancellationToken);
                         break;
                     case 2:
-                        if (session.LogicSettings.UseEggIncubators)
+                        if (session.GlobalSettings.PokemonConfig.UseEggIncubators)
                             if (ActionRandom.Next(1, 10) > 4)
                                 await UseIncubatorsTask.Execute(session, cancellationToken);
                         break;
                     case 3:
-                        if (session.LogicSettings.TransferDuplicatePokemon)
+                        if (session.GlobalSettings.PokemonConfig.TransferDuplicatePokemon)
                             if (ActionRandom.Next(1, 10) > 4)
                                 await TransferDuplicatePokemonTask.Execute(session, cancellationToken);
                         break;
                     case 4:
-                        if (session.LogicSettings.UseLuckyEggConstantly)
+                        if (session.GlobalSettings.PokemonConfig.UseLuckyEggConstantly)
                             if (ActionRandom.Next(1, 10) > 4)
                                 await UseLuckyEggConstantlyTask.Execute(session, cancellationToken);
                         break;
                     case 5:
-                        if (session.LogicSettings.UseIncenseConstantly)
+                        if (session.GlobalSettings.PokemonConfig.UseIncenseConstantly)
                             if (ActionRandom.Next(1, 10) > 4)
                                 await UseIncenseConstantlyTask.Execute(session, cancellationToken);
                         break;
                     case 6:
-                        if (session.LogicSettings.RenamePokemon)
+                        if (session.GlobalSettings.PokemonConfig.RenamePokemon)
                             if (ActionRandom.Next(1, 10) > 4)
                                 await RenamePokemonTask.Execute(session, cancellationToken);
                         break;
                     case 7:
-                        if (session.LogicSettings.AutoFavoritePokemon)
+                        if (session.GlobalSettings.PokemonConfig.AutoFavoritePokemon)
                             if (ActionRandom.Next(1, 10) > 4)
                                 await FavoritePokemonTask.Execute(session, cancellationToken);
                         break;
@@ -62,7 +62,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                             await RecycleItemsTask.Execute(session, cancellationToken);
                         break;
                     case 9:
-                        if (session.LogicSettings.AutomaticallyLevelUpPokemon)
+                        if (session.GlobalSettings.PokemonConfig.AutomaticallyLevelUpPokemon)
                             if (ActionRandom.Next(1, 10) > 4)
                                 await LevelUpPokemonTask.Execute(session, cancellationToken);
                         break;

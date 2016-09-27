@@ -21,7 +21,7 @@ namespace PoGo.NecroBot.Logic.State
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (session.LogicSettings.AutoCompleteTutorial)
+            if (session.GlobalSettings.PlayerConfig.AutoCompleteTutorial)
             {
                 var tutState = session.Profile.PlayerData.TutorialState;
                 if (!tutState.Contains(TutorialState.LegalScreen))
@@ -40,7 +40,7 @@ namespace PoGo.NecroBot.Logic.State
                 if (!tutState.Contains(TutorialState.AvatarSelection))
                 {
                     var gen = Gender.Male;
-                    switch (session.LogicSettings.DesiredGender)
+                    switch (session.GlobalSettings.PlayerConfig.DesiredGender)
                     {
                         case "Male":
                             gen = Gender.Male;
@@ -116,7 +116,7 @@ namespace PoGo.NecroBot.Logic.State
                 PokemonId.Squirtle
             };
             var firstpokenum = 0;
-            switch (session.LogicSettings.DesiredStarter)
+            switch (session.GlobalSettings.PlayerConfig.DesiredStarter)
             {
                 case "Bulbasaur":
                     firstpokenum = 0;
@@ -151,7 +151,7 @@ namespace PoGo.NecroBot.Logic.State
 
         public async Task<bool> SelectNicnname(ISession session)
         {
-            if (string.IsNullOrEmpty(session.LogicSettings.DesiredNickname))
+            if (string.IsNullOrEmpty(session.GlobalSettings.PlayerConfig.DesiredNickname))
             {
                 session.EventDispatcher.Send(new NoticeEvent()
                 {
@@ -160,7 +160,7 @@ namespace PoGo.NecroBot.Logic.State
                 return false;
             }
 
-            if (session.LogicSettings.DesiredNickname.Length > 15)
+            if (session.GlobalSettings.PlayerConfig.DesiredNickname.Length > 15)
             {
                 session.EventDispatcher.Send(new NoticeEvent()
                 {
@@ -169,7 +169,7 @@ namespace PoGo.NecroBot.Logic.State
                 return false;
             }
 			
-            var res = await session.Client.Misc.ClaimCodename(session.LogicSettings.DesiredNickname);
+            var res = await session.Client.Misc.ClaimCodename(session.GlobalSettings.PlayerConfig.DesiredNickname);
             if (res.Status == ClaimCodenameResponse.Types.Status.Success)
             {
                 session.EventDispatcher.Send(new NoticeEvent()

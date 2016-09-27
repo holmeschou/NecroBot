@@ -12,6 +12,7 @@ using PoGo.NecroBot.Logic.Interfaces.Configuration;
 using PoGo.NecroBot.Logic.Event;
 using PoGo.NecroBot.Logic.Model;
 using PoGo.NecroBot.Logic.Event.Gym;
+using PoGo.NecroBot.Logic.Model.Settings;
 
 namespace PoGo.NecroBot.Logic.Strategies.Walk
 {
@@ -71,7 +72,7 @@ namespace PoGo.NecroBot.Logic.Strategies.Walk
             return LocationUtils.CreateWaypoint(geo, randomDistance, randomBearingDegrees);
         }
         
-        public Task<PlayerUpdateResponse> RedirectToNextFallbackStrategy(ILogicSettings logicSettings, IGeoLocation targetLocation, Func<Task> functionExecutedWhileWalking, ISession session, CancellationToken cancellationToken, double walkSpeed=0.0)
+        public Task<PlayerUpdateResponse> RedirectToNextFallbackStrategy(GlobalSettings globalSettings, IGeoLocation targetLocation, Func<Task> functionExecutedWhileWalking, ISession session, CancellationToken cancellationToken, double walkSpeed=0.0)
         {
             // If we need to fall-back, then blacklist current strategy for 1 hour.
             session.Navigation.BlacklistStrategy(this.GetType());
@@ -117,8 +118,8 @@ namespace PoGo.NecroBot.Logic.Strategies.Walk
             {
                 currentLocation = new GeoCoordinate(_client.CurrentLatitude, _client.CurrentLongitude);
                 if (_currentWalkingSpeed <= 0)
-                    _currentWalkingSpeed = session.LogicSettings.WalkingSpeedInKilometerPerHour;
-                if (session.LogicSettings.UseWalkingSpeedVariant && walkSpeed == 0)
+                    _currentWalkingSpeed = session.GlobalSettings.LocationConfig.WalkingSpeedInKilometerPerHour;
+                if (session.GlobalSettings.LocationConfig.UseWalkingSpeedVariant && walkSpeed == 0)
                     _currentWalkingSpeed = session.Navigation.VariantRandom(session, _currentWalkingSpeed);
 
                 var speedInMetersPerSecond = (walkSpeed > 0 ? walkSpeed : _currentWalkingSpeed) / 3.6;
@@ -161,7 +162,7 @@ namespace PoGo.NecroBot.Logic.Strategies.Walk
                         if (speedInMetersPerSecond > SpeedDownTo)
                             speedInMetersPerSecond = SpeedDownTo;
 
-                    if (session.LogicSettings.UseWalkingSpeedVariant && walkSpeed ==0)
+                    if (session.GlobalSettings.LocationConfig.UseWalkingSpeedVariant && walkSpeed ==0)
                     {
                         _currentWalkingSpeed = session.Navigation.VariantRandom(session, _currentWalkingSpeed);
                         speedInMetersPerSecond = _currentWalkingSpeed / 3.6;

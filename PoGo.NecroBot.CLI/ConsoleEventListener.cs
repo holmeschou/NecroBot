@@ -139,7 +139,7 @@ namespace PoGo.NecroBot.CLI
 
         private static void HandleEvent(FortTargetEvent fortTargetEvent, ISession session)
         {
-            int intTimeForArrival = (int)(fortTargetEvent.Distance / (session.LogicSettings.WalkingSpeedInKilometerPerHour * 0.5));
+            int intTimeForArrival = (int)(fortTargetEvent.Distance / (session.GlobalSettings.LocationConfig.WalkingSpeedInKilometerPerHour * 0.5));
 
             string targetType;
             if (fortTargetEvent.Type == FortType.Gym)
@@ -278,7 +278,7 @@ namespace PoGo.NecroBot.CLI
 
         private static void HandleEvent(DisplayHighestsPokemonEvent displayHighestsPokemonEvent, ISession session)
         {
-            if (session.LogicSettings.AmountOfPokemonToDisplayOnStart <= 0)
+            if (session.GlobalSettings.ConsoleConfig.AmountOfPokemonToDisplayOnStart <= 0)
             {
                 return;
             }
@@ -367,7 +367,7 @@ namespace PoGo.NecroBot.CLI
 
         private static void HandleEvent(HumanWalkingEvent humanWalkingEvent, ISession session)
         {
-            if (session.LogicSettings.ShowVariantWalking)
+            if (session.GlobalSettings.LocationConfig.ShowVariantWalking)
                 Logger.Write(
                     session.Translation.GetTranslation(TranslationString.HumanWalkingVariant,
                     humanWalkingEvent.OldWalkingSpeed,

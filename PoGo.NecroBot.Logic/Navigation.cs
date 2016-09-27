@@ -48,7 +48,7 @@ namespace PoGo.NecroBot.Logic
                 if (WalkingRandom.Next(1, 10) > 5)
                 {
                     var randomicSpeed = currentSpeed;
-                    var max = session.LogicSettings.WalkingSpeedInKilometerPerHour + session.LogicSettings.WalkingSpeedVariant;
+                    var max = session.GlobalSettings.LocationConfig.WalkingSpeedInKilometerPerHour + session.GlobalSettings.LocationConfig.WalkingSpeedVariant;
                     randomicSpeed += WalkingRandom.NextDouble() * (0.02 - 0.001) + 0.001;
 
                     if (randomicSpeed > max)
@@ -68,7 +68,7 @@ namespace PoGo.NecroBot.Logic
                 else
                 {
                     var randomicSpeed = currentSpeed;
-                    var min = session.LogicSettings.WalkingSpeedInKilometerPerHour - session.LogicSettings.WalkingSpeedVariant;
+                    var min = session.GlobalSettings.LocationConfig.WalkingSpeedInKilometerPerHour - session.GlobalSettings.LocationConfig.WalkingSpeedVariant;
                     randomicSpeed -= WalkingRandom.NextDouble() * (0.02 - 0.001) + 0.001;                    
 
                     if (randomicSpeed < min)

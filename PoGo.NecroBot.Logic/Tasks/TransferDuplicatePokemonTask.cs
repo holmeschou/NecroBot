@@ -18,17 +18,17 @@ namespace PoGo.NecroBot.Logic.Tasks
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (session.LogicSettings.AutoFavoritePokemon)
+            if (session.GlobalSettings.PokemonConfig.AutoFavoritePokemon)
                 await FavoritePokemonTask.Execute(session, cancellationToken);
 
             await session.Inventory.RefreshCachedInventory();
             var duplicatePokemons =
                 await
                     session.Inventory.GetDuplicatePokemonToTransfer(
-                        session.LogicSettings.PokemonsNotToTransfer,
-                        session.LogicSettings.PokemonsToEvolve, 
-                        session.LogicSettings.KeepPokemonsThatCanEvolve,
-                        session.LogicSettings.PrioritizeIvOverCp);
+                        session.GlobalSettings.PokemonsNotToTransfer,
+                        session.GlobalSettings.PokemonsToEvolve, 
+                        session.GlobalSettings.PokemonConfig.KeepPokemonsThatCanEvolve,
+                        session.GlobalSettings.PokemonConfig.PrioritizeIvOverCp);
 
             var orderedPokemon = duplicatePokemons.OrderBy( poke => poke.Cp );
 
@@ -42,7 +42,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                 await session.Client.Inventory.TransferPokemon(duplicatePokemon.Id);
                 await session.Inventory.DeletePokemonFromInvById(duplicatePokemon.Id);
 
-                var bestPokemonOfType = (session.LogicSettings.PrioritizeIvOverCp
+                var bestPokemonOfType = (session.GlobalSettings.PokemonConfig.PrioritizeIvOverCp
                     ? await session.Inventory.GetHighestPokemonOfTypeByIv(duplicatePokemon)
                     : await session.Inventory.GetHighestPokemonOfTypeByCp(duplicatePokemon)) ?? duplicatePokemon;
 
@@ -65,7 +65,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                 // This is to remedy too quick transfers, often happening within a second of the
                 // previous action otherwise
 
-                DelayingUtils.Delay(session.LogicSettings.TransferActionDelay, 0);
+                DelayingUtils.Delay(session.GlobalSettings.PlayerConfig.TransferActionDelay, 0);
             }
         }
     }

@@ -42,7 +42,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                 .OrderBy(x => x.EggKmWalkedTarget - x.EggKmWalkedStart)
                 .ToList();
 
-            var rememberedIncubatorsFilePath = Path.Combine(session.LogicSettings.ProfilePath, "temp", "incubators.json");
+            var rememberedIncubatorsFilePath = Path.Combine(session.GlobalSettings.ProfilePath, "temp", "incubators.json");
             var rememberedIncubators = GetRememberedIncubators(rememberedIncubatorsFilePath);
             var pokemons = (await session.Inventory.GetPokemons()).ToList();
 
@@ -82,7 +82,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                         continue;
 
                     // Skip (save) limited incubators depending on user choice in config
-                    if (!session.LogicSettings.UseLimitedEggIncubators 
+                    if (!session.GlobalSettings.PokemonConfig.UseLimitedEggIncubators 
                         && incubator.ItemId != ItemId.ItemIncubatorBasicUnlimited)
                         continue;
 

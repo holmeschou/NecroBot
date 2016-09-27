@@ -19,7 +19,7 @@ namespace PoGo.NecroBot.Logic.State
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var coordsPath = Path.Combine(session.LogicSettings.ProfileConfigPath, "LastPos.ini");
+            var coordsPath = Path.Combine(session.GlobalSettings.ProfileConfigPath, "LastPos.ini");
             if (File.Exists(coordsPath))
             {
                 var latLngFromFile = LoadPositionFromDisk(session);
@@ -69,15 +69,12 @@ namespace PoGo.NecroBot.Logic.State
                 Message =
                     session.Translation.GetTranslation(TranslationString.WelcomeWarning, session.Client.CurrentLatitude,
                         session.Client.CurrentLongitude),
-                RequireInput = session.LogicSettings.StartupWelcomeDelay
+                RequireInput = false
             });
-            // Bugfix: Make sure to wait for keypress
-            if (session.LogicSettings.StartupWelcomeDelay) Console.ReadKey();
 
-
-            if (session.LogicSettings.UseGoogleWalk && !session.LogicSettings.UseGpxPathing)
+            if (session.GlobalSettings.GoogleWalkConfig.UseGoogleWalk)
             {
-                if (string.IsNullOrWhiteSpace(session.LogicSettings.GoogleApiKey))
+                if (string.IsNullOrWhiteSpace(session.GlobalSettings.GoogleWalkConfig.GoogleAPIKey))
                 {
                     session.EventDispatcher.Send(new WarnEvent
                     {
@@ -90,7 +87,7 @@ namespace PoGo.NecroBot.Logic.State
             // for pokestops
             try
             {
-                var path = Path.Combine(session.LogicSettings.ProfileConfigPath, "PokestopTS.txt");
+                var path = Path.Combine(session.GlobalSettings.ProfileConfigPath, "PokestopTS.txt");
                 if (File.Exists(path))
                 {
                     var content = File.ReadLines(path);
@@ -119,7 +116,7 @@ namespace PoGo.NecroBot.Logic.State
             list = new List<Int64>();
             try
             {
-                var path = Path.Combine(session.LogicSettings.ProfileConfigPath, "PokemonTS.txt");
+                var path = Path.Combine(session.GlobalSettings.ProfileConfigPath, "PokemonTS.txt");
                 if (File.Exists(path))
                 {
                     var content = File.ReadLines(path);
@@ -151,11 +148,11 @@ namespace PoGo.NecroBot.Logic.State
         private static Tuple<double, double> LoadPositionFromDisk(ISession session)
         {
             if (
-                File.Exists(Path.Combine(session.LogicSettings.ProfileConfigPath, "LastPos.ini")) &&
-                File.ReadAllText(Path.Combine(session.LogicSettings.ProfileConfigPath, "LastPos.ini")).Contains(":"))
+                File.Exists(Path.Combine(session.GlobalSettings.ProfileConfigPath, "LastPos.ini")) &&
+                File.ReadAllText(Path.Combine(session.GlobalSettings.ProfileConfigPath, "LastPos.ini")).Contains(":"))
             {
                 var latlngFromFile =
-                    File.ReadAllText(Path.Combine(session.LogicSettings.ProfileConfigPath, "LastPos.ini"));
+                    File.ReadAllText(Path.Combine(session.GlobalSettings.ProfileConfigPath, "LastPos.ini"));
                 var latlng = latlngFromFile.Split(':');
                 if (latlng[0].Length != 0 && latlng[1].Length != 0)
                 {

@@ -42,7 +42,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                     PokemonList = pkmWithIv.ToList()
                 });
 
-            DelayingUtils.Delay(session.LogicSettings.DelayBetweenPlayerActions, 0);
+            DelayingUtils.Delay(session.GlobalSettings.PlayerConfig.DelayBetweenPlayerActions, 0);
         }
     }
 }

@@ -16,5 +16,12 @@ namespace PoGo.NecroBot.Logic.Model.Settings
         [MaxLength(32)]
         [JsonProperty(Required = Required.DisallowNull, DefaultValueHandling = DefaultValueHandling.Populate)]
         public string GpxFile = "GPXPath.GPX";
+
+        [JsonIgnore]
+        public int ResumeTrack = 0;
+        [JsonIgnore]
+        public int ResumeTrackSeg = 0;
+        [JsonIgnore]
+        public int ResumeTrackPt = 0;
     }
 }

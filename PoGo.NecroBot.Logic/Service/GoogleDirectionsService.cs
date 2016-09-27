@@ -14,12 +14,10 @@ namespace PoGo.NecroBot.Logic.Service
     public class GoogleDirectionsService
     {
         private readonly ISession _session;
-        private readonly bool _cache;
         public List<GoogleResult> OldResults { get; set; }
         public GoogleDirectionsService(ISession session)
         {
             _session = session;
-            _cache = _session.LogicSettings.UseGoogleWalkCache;
             OldResults = new List<GoogleResult>();
         }
 
@@ -28,7 +26,7 @@ namespace PoGo.NecroBot.Logic.Service
             GoogleResult googleResult = null;
             try
             {
-                if (_cache)
+                if (_session.GlobalSettings.GoogleWalkConfig.Cache)
                 {
                     var item = OldResults.FirstOrDefault(pesquisa => IsSameAdress(origin, waypoints, destino, pesquisa));
                     if (item != null)
@@ -67,7 +65,7 @@ namespace PoGo.NecroBot.Logic.Service
                             FromCache = false,
                         };
 
-                        if (_cache)
+                        if (_session.GlobalSettings.GoogleWalkConfig.Cache)
                             SaveResult(resultadoPesquisa);
 
                         googleResult = resultadoPesquisa;
@@ -117,11 +115,11 @@ namespace PoGo.NecroBot.Logic.Service
             if (possuiWayPoint)
                 url += waypoint.Substring(0, waypoint.Length - 1);
 
-            if (!string.IsNullOrEmpty(_session.LogicSettings.GoogleApiKey))
-                url += $"&key={_session.LogicSettings.GoogleApiKey}";
+            if (!string.IsNullOrEmpty(_session.GlobalSettings.GoogleWalkConfig.GoogleAPIKey))
+                url += $"&key={_session.GlobalSettings.GoogleWalkConfig.GoogleAPIKey}";
 
-            if (!string.IsNullOrEmpty(_session.LogicSettings.GoogleHeuristic))
-                url += $"&mode={_session.LogicSettings.GoogleHeuristic}";
+            if (!string.IsNullOrEmpty(_session.GlobalSettings.GoogleWalkConfig.GoogleHeuristic))
+                url += $"&mode={_session.GlobalSettings.GoogleWalkConfig.GoogleHeuristic}";
 
             return url;
         }

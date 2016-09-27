@@ -117,7 +117,6 @@ namespace PoGo.NecroBot.Logic.Model.Settings
         public bool AutoFavoritePokemon => _settings.PokemonConfig.AutoFavoritePokemon;
         public string RenameTemplate => _settings.PokemonConfig.RenameTemplate;
         public int AmountOfPokemonToDisplayOnStart => _settings.ConsoleConfig.AmountOfPokemonToDisplayOnStart;
-        public bool DumpPokemonStats => _settings.PokemonConfig.DumpPokemonStats;
         public string TranslationLanguageCode => _settings.ConsoleConfig.TranslationLanguageCode;
         public bool DetailedCountsBeforeRecycling => _settings.ConsoleConfig.DetailedCountsBeforeRecycling;
         public bool VerboseRecycling => _settings.RecycleConfig.VerboseRecycling;
@@ -133,7 +132,6 @@ namespace PoGo.NecroBot.Logic.Model.Settings
         public Dictionary<PokemonId, TransferFilter> PokemonsTransferFilter => _settings.PokemonsTransferFilter;
         public Dictionary<PokemonId, UpgradeFilter> PokemonUpgradeFilters => _settings.PokemonUpgradeFilters;
 
-        public bool StartupWelcomeDelay => _settings.ConsoleConfig.StartupWelcomeDelay;
         public bool UseGoogleWalk => _settings.GoogleWalkConfig.UseGoogleWalk;
         public double DefaultStepLength => _settings.GoogleWalkConfig.DefaultStepLength;
         public bool UseGoogleWalkCache => _settings.GoogleWalkConfig.Cache;
@@ -151,9 +149,6 @@ namespace PoGo.NecroBot.Logic.Model.Settings
 
         public bool SnipeAtPokestops => _settings.SnipeConfig.SnipeAtPokestops;
         public bool ActivateMSniper => _settings.SnipeConfig.ActivateMSniper;
-        public bool UseTelegramAPI => _settings.TelegramConfig.UseTelegramAPI;
-        public string TelegramAPIKey => _settings.TelegramConfig.TelegramAPIKey;
-        public string TelegramPassword => _settings.TelegramConfig.TelegramPassword;
         public int MinPokeballsToSnipe => _settings.SnipeConfig.MinPokeballsToSnipe;
         public int MinPokeballsWhileSnipe => _settings.SnipeConfig.MinPokeballsWhileSnipe;
         public int MaxPokeballsPerPokemon => _settings.PokemonConfig.MaxPokeballsPerPokemon;
@@ -182,9 +177,9 @@ namespace PoGo.NecroBot.Logic.Model.Settings
         public bool UseSnipeLimit => _settings.SnipeConfig.UseSnipeLimit;
         public bool UsePokeStopLimit => _settings.PokeStopConfig.UsePokeStopLimit;
         public bool UseCatchLimit => _settings.PokemonConfig.UseCatchLimit;
-        public int ResumeTrack => _settings.LocationConfig.ResumeTrack;
-        public int ResumeTrackSeg => _settings.LocationConfig.ResumeTrackSeg;
-        public int ResumeTrackPt => _settings.LocationConfig.ResumeTrackPt;
+        public int ResumeTrack => _settings.GPXConfig.ResumeTrack;
+        public int ResumeTrackSeg => _settings.GPXConfig.ResumeTrackSeg;
+        public int ResumeTrackPt => _settings.GPXConfig.ResumeTrackPt;
         public bool EnableHumanWalkingSnipe => _settings.HumanWalkSnipeConfig.Enable;
         public bool HumanWalkingSnipeDisplayList => _settings.HumanWalkSnipeConfig.DisplayPokemonList;
         public double HumanWalkingSnipeMaxDistance => _settings.HumanWalkSnipeConfig.MaxDistance;

@@ -419,7 +419,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                     return;
                 }
 
-                if (!await SnipePokemonTask.CheckPokeballsToSnipe(session.LogicSettings.MinPokeballsWhileSnipe + 1, session, cancellationToken))
+                if (!await SnipePokemonTask.CheckPokeballsToSnipe(session.GlobalSettings.SnipeConfig.MinPokeballsWhileSnipe + 1, session, cancellationToken))
                 {
                     inProgress = false;
                     return;

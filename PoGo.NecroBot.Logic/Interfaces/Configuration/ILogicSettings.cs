@@ -90,7 +90,6 @@ namespace PoGo.NecroBot.Logic.Interfaces.Configuration
         int UseLuckyEggsMinPokemonAmount { get; }
         bool EvolveAllPokemonAboveIv { get; }
         float EvolveAboveIvValue { get; }
-        bool DumpPokemonStats { get; }
         bool RenamePokemon { get; }
         bool RenameOnlyAboveIv { get; }
         float FavoriteMinIvPercentage { get; }
@@ -103,9 +102,6 @@ namespace PoGo.NecroBot.Logic.Interfaces.Configuration
         string GeneralConfigPath { get; }
         bool SnipeAtPokestops { get; }
         bool ActivateMSniper { get; }
-        bool UseTelegramAPI { get; }
-        string TelegramAPIKey { get; }
-        string TelegramPassword { get; }
         int MinPokeballsToSnipe { get; }
         int MinPokeballsWhileSnipe { get; }
         int MaxPokeballsPerPokemon { get; }
@@ -157,7 +153,6 @@ namespace PoGo.NecroBot.Logic.Interfaces.Configuration
         Dictionary<PokemonId, UpgradeFilter> PokemonUpgradeFilters { get; }
         SnipeSettings PokemonToSnipe { get; }
 
-        bool StartupWelcomeDelay { get; }
         bool UseGoogleWalk { get; }
         double DefaultStepLength { get; }
         bool UseGoogleWalkCache { get; }

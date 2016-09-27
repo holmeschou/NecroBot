@@ -48,14 +48,14 @@ namespace PoGo.NecroBot.Logic.Tasks
         private static async Task<List<SnipePokemonInfo>> FetchFromSkiplagged(double lat, double lng)
         {
             List<SnipePokemonInfo> results = new List<SnipePokemonInfo>();
-            if (!_setting.HumanWalkingSnipeUseSkiplagged) return results;
+            if (!_session.GlobalSettings.HumanWalkSnipeConfig.UseSkiplagged) return results;
 
             //var startFetchTime = DateTime.Now;
 
-            var lat1 = lat - _setting.HumanWalkingSnipeSnipingScanOffset;
-            var lat2 = lat + _setting.HumanWalkingSnipeSnipingScanOffset;
-            var lng1 = lng - _setting.HumanWalkingSnipeSnipingScanOffset;
-            var lng2 = lng + _setting.HumanWalkingSnipeSnipingScanOffset;
+            var lat1 = lat - _session.GlobalSettings.HumanWalkSnipeConfig.SnipingScanOffset;
+            var lat2 = lat + _session.GlobalSettings.HumanWalkSnipeConfig.SnipingScanOffset;
+            var lng1 = lng - _session.GlobalSettings.HumanWalkSnipeConfig.SnipingScanOffset;
+            var lng2 = lng + _session.GlobalSettings.HumanWalkSnipeConfig.SnipingScanOffset;
 
             string url = $"https://skiplagged.com/api/pokemon.php?bounds={lat1},{lng1},{lat2},{lng2}";
 

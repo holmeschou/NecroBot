@@ -72,7 +72,7 @@ namespace PoGo.NecroBot.Logic.Tasks
         internal static async Task<FortData> GetTarget(ISession session)
         {
             if (_targetStop != null &&
-                !session.LogicSettings.UseGpxPathing &&
+                !session.GlobalSettings.GPXConfig.UseGpxPathing &&
                 _targetStop.CooldownCompleteTimestampMs < DateTime.UtcNow.ToUnixTime())
             {
                 if (_targetStop.Id == TARGET_ID)

@@ -37,7 +37,7 @@ namespace PoGo.NecroBot.Logic.Tasks
         private static async Task<List<SnipePokemonInfo>> FetchFromPokesnipers(double lat, double lng)
         {
             List<SnipePokemonInfo> results = new List<SnipePokemonInfo>();
-            if (!_setting.HumanWalkingSnipeUsePokesnipers) return results;
+            if (!_session.GlobalSettings.HumanWalkSnipeConfig.UsePokesnipers) return results;
 
             //var startFetchTime = DateTime.Now;
 

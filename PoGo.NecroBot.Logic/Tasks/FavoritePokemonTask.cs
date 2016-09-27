@@ -28,7 +28,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
                 var perfection = Math.Round(PokemonInfo.CalculatePokemonPerfection(pokemon));
 
-                if (session.LogicSettings.AutoFavoritePokemon && perfection >= session.LogicSettings.FavoriteMinIvPercentage && pokemon.Favorite!=1)
+                if (session.GlobalSettings.PokemonConfig.AutoFavoritePokemon && perfection >= session.GlobalSettings.PokemonConfig.FavoriteMinIvPercentage && pokemon.Favorite!=1)
                 {
                     await session.Client.Inventory.SetFavoritePokemon(pokemon.Id, true);
 

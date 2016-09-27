@@ -131,8 +131,6 @@
   <ItemGroup>
     <Compile Include="Common\ApiFailureStrategy.cs" />
     <Compile Include="Common\PokemonGradeHelper.cs" />
-    <Compile Include="DataDumper\IDumper.cs" />
-    <Compile Include="DataDumper\Dumper.cs" />
     <Compile Include="Common\Translations.cs" />
     <Compile Include="Event\DisplayHighestsPokemonEvent.cs" />
     <Compile Include="Event\EggHatchedEvent.cs" />
@@ -228,7 +226,6 @@
     <Compile Include="Model\Settings\SnipeConfig.cs" />
     <Compile Include="Model\Settings\SnipeSettings.cs" />
     <Compile Include="Model\Settings\SoftBanConfig.cs" />
-    <Compile Include="Model\Settings\TelegramConfig.cs" />
     <Compile Include="Model\Settings\TransferConfig.cs" />
     <Compile Include="Model\Settings\TransferFilter.cs" />
     <Compile Include="Model\Settings\UpdateConfig.cs" />
@@ -250,7 +247,6 @@
     <Compile Include="Service\GoogleDirectionsService.cs" />
     <Compile Include="Service\Elevation\GoogleElevationService.cs" />
     <Compile Include="Service\Elevation\MapQuestElevationService.cs" />
-    <Compile Include="Service\TelegramService.cs" />
     <Compile Include="Model\Settings\LogicSettings.cs" />
     <Compile Include="Service\MapzenDirectionsService.cs" />
     <Compile Include="Service\YoursDirectionsService.cs" />

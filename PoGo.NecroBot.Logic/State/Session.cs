@@ -20,7 +20,7 @@ namespace PoGo.NecroBot.Logic.State
     {
         ISettings Settings { get; set; }
         GlobalSettings GlobalSettings { get; }
-        ILogicSettings LogicSettings { get; }
+        //ILogicSettings LogicSettings { get; }
         ITranslation Translation { get; }
         Client Client { get; }
         GetPlayerResponse Profile { get; set; }
@@ -29,7 +29,6 @@ namespace PoGo.NecroBot.Logic.State
         IEventDispatcher EventDispatcher { get; }
         List<FortData> Forts { get; set; }
         SessionStats Stats { get; }
-        TelegramService Telegram { get; set; }
         List<BotActions> Actions { get; }
 
         void AddForts(List<FortData> mapObjects);
@@ -54,9 +53,6 @@ namespace PoGo.NecroBot.Logic.State
             Forts = new List<FortData>();
 
             Stats = new SessionStats();
-
-            if (GlobalSettings.TelegramConfig.UseTelegramAPI)
-                Telegram = new TelegramService(GlobalSettings.TelegramConfig.TelegramAPIKey, this);
         }
 
         public ISettings Settings { get; set; }
@@ -80,8 +76,6 @@ namespace PoGo.NecroBot.Logic.State
         public List<FortData> Forts { get; set; }
 
         public SessionStats Stats { get; set; }
-
-        public TelegramService Telegram { get; set; }
 
         public List<BotActions> Actions { get { return this.botActions; } }
 

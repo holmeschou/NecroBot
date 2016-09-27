@@ -33,9 +33,9 @@ namespace PoGo.NecroBot.Logic.Tasks
 
             if (!_resumeTrack.HasValue || !_resumeTrackSeg.HasValue || !_resumeTrackPt.HasValue)
             {
-                _resumeTrack = session.LogicSettings.ResumeTrack;
-                _resumeTrackSeg = session.LogicSettings.ResumeTrackSeg;
-                _resumeTrackPt = session.LogicSettings.ResumeTrackPt;
+                _resumeTrack = session.GlobalSettings.GPXConfig.ResumeTrack;
+                _resumeTrackSeg = session.GlobalSettings.GPXConfig.ResumeTrackSeg;
+                _resumeTrackPt = session.GlobalSettings.GPXConfig.ResumeTrackPt;
 
                 // initialize the variables in UseNearbyPokestopsTask here, as this is a fresh start.
                 UseNearbyPokestopsTask.Initialize();
@@ -86,7 +86,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                         await session.Navigation.Move(destination,
                             async () =>
                             {
-                                if (session.LogicSettings.ActivateMSniper)
+                                if (session.GlobalSettings.SnipeConfig.ActivateMSniper)
                                 {
                                     await MSniperServiceTask.Execute(session, cancellationToken);
                                 }
@@ -115,7 +115,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
         private static List<GpxReader.Trk> GetGpxTracks(ISession session)
         {
-            var xmlString = File.ReadAllText(session.LogicSettings.GpxFile);
+            var xmlString = File.ReadAllText(session.GlobalSettings.GPXConfig.GpxFile);
             var readgpx = new GpxReader(xmlString, session);
             return readgpx.Tracks;
         }

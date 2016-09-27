@@ -20,19 +20,19 @@ namespace PoGo.NecroBot.Logic.Tasks
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (session.LogicSettings.AutoFavoritePokemon)
+            if (session.GlobalSettings.PokemonConfig.AutoFavoritePokemon)
                 await FavoritePokemonTask.Execute(session, cancellationToken);
 
             await session.Inventory.RefreshCachedInventory();
             var pokemons = await session.Inventory.GetPokemons();
             var pokemonDatas = pokemons as IList<PokemonData> ?? pokemons.ToList();
             var pokemonsFiltered =
-                pokemonDatas.Where(pokemon => !session.LogicSettings.PokemonsNotToTransfer.Contains(pokemon.PokemonId))
+                pokemonDatas.Where(pokemon => !session.GlobalSettings.PokemonsNotToTransfer.Contains(pokemon.PokemonId))
                     .ToList().OrderBy( poke => poke.Cp );
 
-            if (session.LogicSettings.KeepPokemonsThatCanEvolve)
+            if (session.GlobalSettings.PokemonConfig.KeepPokemonsThatCanEvolve)
                 pokemonsFiltered =
-                    pokemonDatas.Where(pokemon => !session.LogicSettings.PokemonsToEvolve.Contains(pokemon.PokemonId))
+                    pokemonDatas.Where(pokemon => !session.GlobalSettings.PokemonsToEvolve.Contains(pokemon.PokemonId))
                         .ToList().OrderBy( poke => poke.Cp );
 
             var orderedPokemon = pokemonsFiltered.OrderBy( poke => poke.Cp );
@@ -40,16 +40,16 @@ namespace PoGo.NecroBot.Logic.Tasks
             foreach (var pokemon in orderedPokemon )
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                if ((pokemon.Cp >= session.LogicSettings.KeepMinCp) ||
-                    (PokemonInfo.CalculatePokemonPerfection(pokemon) >= session.LogicSettings.KeepMinIvPercentage &&
-                     session.LogicSettings.PrioritizeIvOverCp) ||
-                     (PokemonInfo.GetLevel(pokemon) >= session.LogicSettings.KeepMinLvl && session.LogicSettings.UseKeepMinLvl) ||
+                if ((pokemon.Cp >= session.GlobalSettings.PokemonConfig.KeepMinCp) ||
+                    (PokemonInfo.CalculatePokemonPerfection(pokemon) >= session.GlobalSettings.PokemonConfig.KeepMinIvPercentage &&
+                     session.GlobalSettings.PokemonConfig.PrioritizeIvOverCp) ||
+                     (PokemonInfo.GetLevel(pokemon) >= session.GlobalSettings.PokemonConfig.KeepMinLvl && session.GlobalSettings.PokemonConfig.UseKeepMinLvl) ||
                     pokemon.Favorite == 1)
                     continue;
 
                 await session.Client.Inventory.TransferPokemon(pokemon.Id);
                 await session.Inventory.DeletePokemonFromInvById(pokemon.Id);
-                var bestPokemonOfType = (session.LogicSettings.PrioritizeIvOverCp
+                var bestPokemonOfType = (session.GlobalSettings.PokemonConfig.PrioritizeIvOverCp
                     ? await session.Inventory.GetHighestPokemonOfTypeByIv(pokemon)
                     : await session.Inventory.GetHighestPokemonOfTypeByCp(pokemon)) ?? pokemon;
 
@@ -69,7 +69,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                     FamilyCandies = family.Candy_
                 });
 
-                DelayingUtils.Delay(session.LogicSettings.TransferActionDelay, 0);
+                DelayingUtils.Delay(session.GlobalSettings.PlayerConfig.TransferActionDelay, 0);
             }
         }
     }

@@ -37,7 +37,7 @@ namespace PoGo.NecroBot.Logic.Tasks
          private static async Task<List<SnipePokemonInfo>> FetchFromPkGet(double lat, double lng)
         {
             List<SnipePokemonInfo> results = new List<SnipePokemonInfo>();
-            if (!_setting.HumanWalkingSnipeUsePkGet) return results;
+            if (!_session.GlobalSettings.HumanWalkSnipeConfig.UsePkGet) return results;
 
             //var startFetchTime = DateTime.Now;
 
@@ -50,7 +50,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                     AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate
                 };
                 var client = new HttpClient(handler) { BaseAddress = baseAddress };
-                double offset = _setting.HumanWalkingSnipeSnipingScanOffset;
+                double offset = _session.GlobalSettings.HumanWalkSnipeConfig.SnipingScanOffset;
 
                 var message = new HttpRequestMessage(HttpMethod.Get, $"https://pkget.com/pkm333.ashx?v1=111&v2={lat + offset}&v3={lng + offset}&v4={lat - offset}&v5={lng - offset}&v6=0");
                 message.Headers.Host = "pkget.com";

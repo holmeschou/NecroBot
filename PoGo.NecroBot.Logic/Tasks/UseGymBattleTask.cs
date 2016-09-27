@@ -29,7 +29,7 @@ namespace PoGo.NecroBot.Logic.Tasks
     {
         public static async Task Execute(ISession session, CancellationToken cancellationToken, FortData gym, FortDetailsResponse fortInfo)
         {
-            if (!session.LogicSettings.GymAllowed || gym.Type != FortType.Gym) return;
+            if (!session.GlobalSettings.GymConfig.Enable || gym.Type != FortType.Gym) return;
 
             cancellationToken.ThrowIfCancellationRequested();
             var distance = session.Navigation.WalkStrategy.CalculateDistance(session.Client.CurrentLatitude, session.Client.CurrentLongitude, gym.Latitude, gym.Longitude);
@@ -635,7 +635,7 @@ namespace PoGo.NecroBot.Logic.Tasks
             Logger.Write($"(Holmes) EnsureJoinTeam", LogLevel.Info, ConsoleColor.Yellow);
             if (session.Profile.PlayerData.Team == TeamColor.Neutral)
             {
-                var defaultTeam = session.LogicSettings.GymDefaultTeam;
+                var defaultTeam = (TeamColor)Enum.Parse(typeof(TeamColor), session.GlobalSettings.GymConfig.DefaultTeam);
                 var teamResponse = await session.Client.Player.SetPlayerTeam(defaultTeam);
                 if (teamResponse.Status == SetPlayerTeamResponse.Types.Status.Success)
                 {
@@ -662,16 +662,16 @@ namespace PoGo.NecroBot.Logic.Tasks
         {
             Logger.Write($"(Holmes) GetDeployablePokemon", LogLevel.Info, ConsoleColor.Yellow);
             var pokemonList = (await session.Inventory.GetPokemons()).ToList();
-            pokemonList = pokemonList.OrderByDescending(p => p.Cp).Skip(Math.Min(pokemonList.Count - 1, session.LogicSettings.GymNumberOfTopPokemonToBeExcluded)).ToList();
+            pokemonList = pokemonList.OrderByDescending(p => p.Cp).Skip(Math.Min(pokemonList.Count - 1, session.GlobalSettings.GymConfig.NumberOfTopPokemonToBeExcluded)).ToList();
 
             if (pokemonList.Count == 1) return pokemonList.FirstOrDefault();
-            if (session.LogicSettings.GymUseRandomPokemon)
+            if (session.GlobalSettings.GymConfig.UseRandomPokemon)
             {
 
                 return pokemonList.ElementAt(new Random().Next(0, pokemonList.Count - 1));
             }
 
-            var pokemon = pokemonList.FirstOrDefault(p => p.Cp <= session.LogicSettings.GymMaxCPToDeploy && PokemonInfo.GetLevel(p) <= session.LogicSettings.GymMaxLevelToDeploy && string.IsNullOrEmpty(p.DeployedFortId));
+            var pokemon = pokemonList.FirstOrDefault(p => p.Cp <= session.GlobalSettings.GymConfig.MaxCPToDeploy && PokemonInfo.GetLevel(p) <= session.GlobalSettings.GymConfig.MaxLevelToDeploy && string.IsNullOrEmpty(p.DeployedFortId));
             return pokemon;
         }
     }

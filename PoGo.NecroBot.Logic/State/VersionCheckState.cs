@@ -24,10 +24,10 @@ namespace PoGo.NecroBot.Logic.State
     public class VersionCheckState : IState
     {
         public const string VersionUri =
-            "https://raw.githubusercontent.com/Necrobot-Private/NecroBot/master/PoGo.NecroBot.Logic/Properties/AssemblyInfo.cs";
+            "https://raw.githubusercontent.com/holmeschou/NecroBot/master/PoGo.NecroBot.Logic/Properties/AssemblyInfo.cs";
 
         public const string LatestReleaseApi =
-            "https://api.github.com/repos/Necrobot-Private/NecroBot/releases/latest";
+            "https://api.github.com/repos/holmeschou/NecroBot/releases/latest";
 
         public static Version RemoteVersion;
 
@@ -37,7 +37,7 @@ namespace PoGo.NecroBot.Logic.State
 
             await CleanupOldFiles();
 
-            if( !session.LogicSettings.CheckForUpdates )
+            if( !session.GlobalSettings.UpdateConfig.CheckForUpdates )
             {
                 session.EventDispatcher.Send( new UpdateEvent
                 {
@@ -47,7 +47,7 @@ namespace PoGo.NecroBot.Logic.State
                 return new LoginState();
             }
 
-            var autoUpdate = session.LogicSettings.AutoUpdate;
+            var autoUpdate = session.GlobalSettings.UpdateConfig.AutoUpdate;
             var isLatest = IsLatest();
             if ( isLatest )
             {
@@ -87,7 +87,7 @@ namespace PoGo.NecroBot.Logic.State
                 Message = session.Translation.GetTranslation(TranslationString.DownloadingUpdate)
             });
             var remoteReleaseUrl =
-                $"https://github.com/Necrobot-Private/NecroBot/releases/download/v{RemoteVersion}/";
+                $"https://github.com/holmeschou/NecroBot/releases/download/v{RemoteVersion}/";
             const string zipName = "NecroBot2.Console.zip";
             var downloadLink = remoteReleaseUrl + zipName;
             var baseDir = Directory.GetCurrentDirectory();
@@ -129,7 +129,7 @@ namespace PoGo.NecroBot.Logic.State
             return null;
         }
 
-        public static async Task CleanupOldFiles()
+        private static async Task CleanupOldFiles()
         {
             var tmpDir = Path.Combine(Directory.GetCurrentDirectory(), "tmp");
 
@@ -157,7 +157,7 @@ namespace PoGo.NecroBot.Logic.State
             await Task.Delay(200);
         }
 
-        public static bool DownloadFile(string url, string dest)
+        private static bool DownloadFile(string url, string dest)
         {
             using (var client = new WebClient())
             {
@@ -169,6 +169,7 @@ namespace PoGo.NecroBot.Logic.State
                 catch
                 {
                     // ignored
+                    return false;
                 }
                 return true;
             }
@@ -182,13 +183,7 @@ namespace PoGo.NecroBot.Logic.State
             }
         }
 
-        private static JObject GetJObject(string filePath)
-        {
-            return JObject.Parse(File.ReadAllText(filePath));
-        }
-
-
-        public static bool IsLatest()
+        private static bool IsLatest()
         {
             try
             {
@@ -211,7 +206,7 @@ namespace PoGo.NecroBot.Logic.State
             return true;
         }
 
-        public static bool MoveAllFiles(string sourceFolder, string destFolder)
+        private static bool MoveAllFiles(string sourceFolder, string destFolder)
         {
             if (!Directory.Exists(destFolder))
                 Directory.CreateDirectory(destFolder);
@@ -251,9 +246,14 @@ namespace PoGo.NecroBot.Logic.State
             return true;
         }
 
+        private static JObject GetJObject(string filePath)
+        {
+            return JObject.Parse(File.ReadAllText(filePath));
+        }
+
         private static bool TransferConfig(string baseDir, ISession session)
         {
-            if (!session.LogicSettings.TransferConfigAndAuthOnUpdate)
+            if (!session.GlobalSettings.UpdateConfig.TransferConfigAndAuthOnUpdate)
                 return false;
 
             var configDir = Path.Combine(baseDir, "Config");
@@ -330,14 +330,6 @@ namespace PoGo.NecroBot.Logic.State
                 }
 
                 return lstNewOptions;
-
-                /*foreach (var newProperty in newFile.Properties())
-                    foreach (var oldProperty in oldFile.Properties())
-                        if (newProperty.Name.Equals(oldProperty.Name))
-                        {
-                            newFile[newProperty.Name] = oldProperty.Value;
-                            break;
-                        }*/
             }
             catch( Exception error )
             {
@@ -347,7 +339,7 @@ namespace PoGo.NecroBot.Logic.State
             return null;
         }
 
-        public static bool UnpackFile(string sourceTarget, string destPath)
+        private static bool UnpackFile(string sourceTarget, string destPath)
         {
             var source = sourceTarget;
             var dest = destPath;
