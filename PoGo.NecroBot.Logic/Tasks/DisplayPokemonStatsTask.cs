@@ -54,10 +54,6 @@ namespace PoGo.NecroBot.Logic.Tasks
                     SortedBy = "IV",
                     PokemonList = pokemonPairedWithStatsIv
                 });
-
-            var allPokemonInBag = session.GlobalSettings.PokemonConfig.PrioritizeIvOverCp
-                ? await session.Inventory.GetHighestsPerfect(1000)
-                : await session.Inventory.GetHighestsCp(1000);
         }
     }
 }
