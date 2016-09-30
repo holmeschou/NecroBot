@@ -1,22 +1,21 @@
 #region using directives
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using PoGo.NecroBot.Logic.Common;
 using PoGo.NecroBot.Logic.Event;
 using PoGo.NecroBot.Logic.Logging;
 using PoGo.NecroBot.Logic.State;
+using PoGo.NecroBot.Logic.Event.Gym;
 using POGOProtos.Enums;
 using POGOProtos.Inventory.Item;
 using POGOProtos.Networking.Responses;
-using PoGo.NecroBot.Logic.Event.Gym;
 using POGOProtos.Map.Fort;
+
 #endregion
 
 namespace PoGo.NecroBot.CLI
 {
-    [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     internal class ConsoleEventListener
     {
         private static void HandleEvent(ProfileEvent profileEvent, ISession session)
@@ -235,7 +234,11 @@ namespace PoGo.NecroBot.CLI
 
         private static void HandleEvent(EncounteredEvent pokemonEncounteredEvent, ISession session)
         {
-            Logger.Write($"Meet {session.Translation.GetPokemonTranslation(pokemonEncounteredEvent.PokemonId)} Level:{pokemonEncounteredEvent.Level} IV:{pokemonEncounteredEvent.IV.ToString("0.00")} at {pokemonEncounteredEvent.Latitude.ToString("0.000000")}, {pokemonEncounteredEvent.Longitude.ToString("0.000000")}", LogLevel.Info, ConsoleColor.White);
+            string message = "Meet" + session.Translation.GetPokemonTranslation(pokemonEncounteredEvent.PokemonId) +
+                " Level:" + pokemonEncounteredEvent.Level +
+                " IV:" + pokemonEncounteredEvent.IV.ToString("0.00") +
+                " at " + pokemonEncounteredEvent.Latitude.ToString("0.000000") + ", " + pokemonEncounteredEvent.Longitude.ToString("0.000000");
+            Logger.Write(message, LogLevel.Info, ConsoleColor.White);
         }
 
         private static void HandleEvent(NoPokeballEvent noPokeballEvent, ISession session)
@@ -460,7 +463,6 @@ namespace PoGo.NecroBot.CLI
         {
             Logger.Write($"Error starting battle with gym: {ev.GymName}. Skipping...", LogLevel.Error, ConsoleColor.Red);
         }
-
 
         private static void HandleEvent(GymListEvent ev, ISession session)
         {

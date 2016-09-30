@@ -27,7 +27,6 @@ namespace PoGo.NecroBot.CLI
         private static readonly ManualResetEvent QuitEvent = new ManualResetEvent(false);
         private static string _subPath = "";
         private static bool _enableJsonValidation = true;
-        private static bool _ignoreKillSwitch = false;
 
         private static readonly Uri StrKillSwitchUri =
             new Uri("https://raw.githubusercontent.com/Necrobot-Private/Necrobot2/master/KillSwitch.txt");
@@ -70,23 +69,8 @@ namespace PoGo.NecroBot.CLI
                         break;
                 }
             }
-            if (commandLine["killswitch"] != null && commandLine["killswitch"].Length > 0)
-            {
-                switch (commandLine["killswitch"])
-                {
-                    case "true":
-                        _ignoreKillSwitch = false;
-                        break;
-                    case "false":
-                        _ignoreKillSwitch = true;
-                        break;
-                }
-            }
 
             Logger.SetLogger(new ConsoleLogger(LogLevel.Service), _subPath);
-
-            if (!_ignoreKillSwitch && CheckKillSwitch())
-                return;
 
             var profilePath = Path.Combine(Directory.GetCurrentDirectory(), _subPath);
             var profileConfigPath = Path.Combine(profilePath, "config");
@@ -95,7 +79,6 @@ namespace PoGo.NecroBot.CLI
 
             // Load the settings from the config file or generate default
             settings = GlobalSettings.Load(_subPath, false, _enableJsonValidation);
-
             if (settings == null)
             {
                 Logger.Write("Configuration files are not exist. We had generated default configuation files. Please edit it and run again. \nPress a Key to continue...", LogLevel.Warning);
@@ -181,15 +164,23 @@ namespace PoGo.NecroBot.CLI
             _session = new Session(new ClientSettings(settings), settings, translation);
             Logger.SetLoggerContext(_session);
 
-            if (settings.WebsocketsConfig.UseWebsocket)
+            FileSystemWatcher configWatcher = new FileSystemWatcher();
+            configWatcher.Path = profileConfigPath;
+            configWatcher.Filter = "config.json";
+            configWatcher.NotifyFilter = NotifyFilters.LastWrite;
+            configWatcher.EnableRaisingEvents = true;
+            configWatcher.Changed += (sender, e) =>
             {
-                var websocket = new WebSocketInterface(settings.WebsocketsConfig.WebSocketPort, _session);
-                _session.EventDispatcher.EventReceived += evt => websocket.Listen(evt, _session);
-            }
+                if (e.ChangeType == WatcherChangeTypes.Changed)
+                {
+                    _session.GlobalSettings = GlobalSettings.Load(_subPath, false, _enableJsonValidation);
+                    configWatcher.EnableRaisingEvents = !configWatcher.EnableRaisingEvents;
+                    configWatcher.EnableRaisingEvents = !configWatcher.EnableRaisingEvents;
+                    Logger.Write(" ##### config.json ##### ", LogLevel.Info);
+                }
+            };
 
-            var machine = new StateMachine();
             var stats = new Statistics();
-
             var strVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
             stats.DirtyEvent +=
                 () =>
@@ -197,16 +188,30 @@ namespace PoGo.NecroBot.CLI
                                     stats.GetTemplatedStats(
                                         _session.Translation.GetTranslation(TranslationString.StatsTemplateString),
                                         _session.Translation.GetTranslation(TranslationString.StatsXpTemplateString));
-            var aggregator = new StatisticsAggregator(stats);
-            var listener = new ConsoleEventListener();
-            var snipeEventListener = new SniperEventListener();
 
-            _session.EventDispatcher.EventReceived += evt => listener.Listen(evt, _session);
+            if (settings.WebsocketsConfig.UseWebsocket)
+            {
+                var websocket = new WebSocketInterface(settings.WebsocketsConfig.WebSocketPort, _session);
+                _session.EventDispatcher.EventReceived += evt => websocket.Listen(evt, _session);
+            }
+
+            var aggregator = new StatisticsAggregator(stats);
             _session.EventDispatcher.EventReceived += evt => aggregator.Listen(evt, _session);
+
+            var listener = new ConsoleEventListener();
+            _session.EventDispatcher.EventReceived += evt => listener.Listen(evt, _session);
+
             if (_session.GlobalSettings.HumanWalkSnipeConfig.Enable)
+            {
+                var snipeEventListener = new SniperEventListener();
                 _session.EventDispatcher.EventReceived += evt => snipeEventListener.Listen(evt, _session);
-            
-            machine.SetFailureState(new LoginState());
+            }
+
+            if (_session.GlobalSettings.DataSharingConfig.EnableSyncData)
+            {
+                BotDataSocketClient.StartAsync(_session);
+                _session.EventDispatcher.EventReceived += evt => BotDataSocketClient.Listen(evt, _session);
+            }
 
             _session.Navigation.WalkStrategy.UpdatePositionEvent +=
                 (lat, lng) => _session.EventDispatcher.Send(new UpdatePositionEvent { Latitude = lat, Longitude = lng });
@@ -214,7 +219,11 @@ namespace PoGo.NecroBot.CLI
             UseNearbyPokestopsTask.UpdateTimeStampsPokestop += SaveTimeStampsPokestopToDisk;
             CatchPokemonTask.UpdateTimeStampsPokemon += SaveTimeStampsPokemonToDisk;
 
-            machine.AsyncStart(new VersionCheckState(), _session, _subPath);
+            settings.Auth.CheckProxy(_session.Translation);
+
+            var machine = new StateMachine();
+            machine.SetFailureState(new LoginState());
+            machine.AsyncStart(new VersionCheckState(), _session);
 
             try
             {
@@ -228,14 +237,10 @@ namespace PoGo.NecroBot.CLI
                 _session.GlobalSettings.HumanWalkSnipeConfig.UsePogoLocationFeeder)
                 SnipePokemonTask.AsyncStart(_session);
 
-            if (_session.GlobalSettings.DataSharingConfig.EnableSyncData)
-            {
-                BotDataSocketClient.StartAsync(_session);
-                _session.EventDispatcher.EventReceived += evt => BotDataSocketClient.Listen(evt, _session);
-            }
-            settings.Auth.CheckProxy(_session.Translation);
-
             QuitEvent.WaitOne();
+
+            configWatcher.EnableRaisingEvents = false;
+            configWatcher.Dispose();
         }
 
         private static void EventDispatcher_EventReceived(IEvent evt)
@@ -272,82 +277,10 @@ namespace PoGo.NecroBot.CLI
                 File.WriteAllLines(path, fileContent.ToArray());
         }
 
-        private static bool CheckKillSwitch()
-        {
-            #if DEBUG
-                return false;
-            #endif
-
-            using (var wC = new WebClient())
-            {
-                try
-                {
-                    var strResponse = WebClientExtensions.DownloadString(wC, StrKillSwitchUri);
-
-                    if (strResponse == null)
-                        return false;
-
-                    var strSplit = strResponse.Split(';');
-
-                    if (strSplit.Length > 1)
-                    {
-                        var strStatus = strSplit[0];
-                        var strReason = strSplit[1];
-
-                        if (strStatus.ToLower().Contains("disable"))
-                        {
-                            Logger.Write(strReason + $"\n", LogLevel.Warning);
-
-                            if (PromptForKillSwitchOverride())
-                            {
-                                // Override
-                                Logger.Write("Overriding killswitch... you have been warned!", LogLevel.Warning);
-                                return false;
-                            }
-
-                            Logger.Write("The bot will now close, please press enter to continue", LogLevel.Error);
-                            Console.ReadLine();
-                            return true;
-                        }
-                    }
-                    else
-                        return false;
-                }
-                catch (WebException)
-                {
-                    // ignored
-                }
-            }
-
-            return false;
-        }
-
         private static void UnhandledExceptionEventHandler(object obj, UnhandledExceptionEventArgs args)
         {
             Logger.Write("Exception caught, writing LogBuffer.", force: true);
             throw new Exception();
-        }
-
-        public static bool PromptForKillSwitchOverride()
-        {
-            Logger.Write("Do you want to override killswitch to bot at your own risk? Y/N", LogLevel.Warning);
-
-            while (true)
-            {
-                var strInput = Console.ReadLine().ToLower();
-
-                switch (strInput)
-                {
-                    case "y":
-                        // Override killswitch
-                        return true;
-                    case "n":
-                        return false;
-                    default:
-                        Logger.Write("Enter y or n", LogLevel.Error);
-                        continue;
-                }
-            }
         }
     }
 }

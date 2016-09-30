@@ -1,14 +1,11 @@
 ﻿#region using directives
 
 using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using PoGo.NecroBot.Logic.Event;
 using PoGo.NecroBot.Logic.Tasks;
 using PoGo.NecroBot.Logic.Common;
-using PoGo.NecroBot.Logic.Logging;
-using PoGo.NecroBot.Logic.Model.Settings;
 using PokemonGo.RocketAPI.Exceptions;
 
 #endregion
@@ -19,9 +16,9 @@ namespace PoGo.NecroBot.Logic.State
     {
         private IState _initialState;
 
-        public Task AsyncStart(IState initialState, Session session, string subPath)
+        public Task AsyncStart(IState initialState, Session session)
         {
-            return Task.Run(() => Start(initialState, session, subPath));
+            return Task.Run(() => Start(initialState, session));
         }
 
         public void SetFailureState(IState state)
@@ -29,29 +26,11 @@ namespace PoGo.NecroBot.Logic.State
             _initialState = state;
         }
 
-        public async Task Start(IState initialState, Session session, string subPath)
+        public async Task Start(IState initialState, Session session)
         {
             var state = initialState;
-            var profilePath = Path.Combine(Directory.GetCurrentDirectory(), subPath);
-            var profileConfigPath = Path.Combine(profilePath, "config");
 
-            FileSystemWatcher configWatcher = new FileSystemWatcher();
-            configWatcher.Path = profileConfigPath;
-            configWatcher.Filter = "config.json";
-            configWatcher.NotifyFilter = NotifyFilters.LastWrite;
-            configWatcher.EnableRaisingEvents = true;
-            configWatcher.Changed += (sender, e) =>
-            {
-                if (e.ChangeType == WatcherChangeTypes.Changed)
-                {
-                    session.GlobalSettings = GlobalSettings.Load(subPath);
-                    configWatcher.EnableRaisingEvents = !configWatcher.EnableRaisingEvents;
-                    configWatcher.EnableRaisingEvents = !configWatcher.EnableRaisingEvents;
-                    Logger.Write(" ##### config.json ##### ", LogLevel.Info);
-                }
-            };
-
-            // We need a CTS to be able to cancel taks at all
+            // We need a CTS to be able to cancel task at all
             // All cancelling through the tasks originates from here
             var cts = new CancellationTokenSource();
             var cancellationToken = cts.Token;
@@ -63,8 +42,8 @@ namespace PoGo.NecroBot.Logic.State
                     state = await state.Execute(session, cancellationToken);
 
                     // Exit the bot if both catching and looting has reached its limits
-                    if ((UseNearbyPokestopsTask._pokestopLimitReached || UseNearbyPokestopsTask._pokestopTimerReached) &&
-                        (CatchPokemonTask._catchPokemonLimitReached || CatchPokemonTask._catchPokemonTimerReached))
+                    if ((UseNearbyPokestopsTask.PokestopLimitReached || UseNearbyPokestopsTask.PokestopTimerReached) &&
+                        (CatchPokemonTask.CatchPokemonLimitReached || CatchPokemonTask.CatchPokemonTimerReached))
                     {
                         session.EventDispatcher.Send(new ErrorEvent
                         {
@@ -79,14 +58,10 @@ namespace PoGo.NecroBot.Logic.State
                         cts.Dispose();
                         Environment.Exit(0);
                     }
-
                 }
                 catch (InvalidResponseException)
                 {
-                    session.EventDispatcher.Send(new ErrorEvent
-                    {
-                        Message = "Niantic Servers unstable, throttling API Calls."
-                    });
+                    session.EventDispatcher.Send(new ErrorEvent {Message = "Niantic Servers unstable, throttling API Calls."});
                 }
                 catch (OperationCanceledException)
                 {
@@ -101,8 +76,6 @@ namespace PoGo.NecroBot.Logic.State
                     state = _initialState;
                 }
             } while (state != null);
-            configWatcher.EnableRaisingEvents = false;
-            configWatcher.Dispose();
         }
     }
 }

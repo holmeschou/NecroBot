@@ -1,7 +1,5 @@
 ﻿#region using directives
 
-#region using directives
-
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,10 +11,6 @@ using POGOProtos.Networking.Responses;
 
 #endregion
 
-// ReSharper disable CyclomaticComplexity
-
-#endregion
-
 namespace PoGo.NecroBot.Logic.Utils
 {
     public delegate void StatisticsDirtyDelegate();
@@ -24,9 +18,10 @@ namespace PoGo.NecroBot.Logic.Utils
     public class Statistics
     {
         private readonly DateTime _initSessionDateTime = DateTime.Now;
-        
+
         private StatsExport _exportStats;
         private string _playerName;
+
         public int TotalExperience;
         public int TotalItemsRemoved;
         public int TotalPokemons;

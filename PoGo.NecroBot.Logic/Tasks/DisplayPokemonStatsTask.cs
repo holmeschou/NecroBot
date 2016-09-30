@@ -14,10 +14,6 @@ namespace PoGo.NecroBot.Logic.Tasks
 {
     public class DisplayPokemonStatsTask
     {
-        public static List<ulong> PokemonId = new List<ulong>();
-
-        public static List<ulong> PokemonIdcp = new List<ulong>();
-
         public static async Task Execute(ISession session)
         {
             var myPokemonFamilies = await session.Inventory.GetPokemonFamilies();

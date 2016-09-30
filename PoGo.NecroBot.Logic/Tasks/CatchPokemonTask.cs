@@ -25,8 +25,8 @@ namespace PoGo.NecroBot.Logic.Tasks
     public static class CatchPokemonTask
     {
         public static event UpdateTimeStampsPokemonDelegate UpdateTimeStampsPokemon;
-        public static bool _catchPokemonLimitReached = false;
-        public static bool _catchPokemonTimerReached = false;
+        public static bool CatchPokemonLimitReached = false;
+        public static bool CatchPokemonTimerReached = false;
         public static int AmountOfBerries;
         private static Random Random => new Random((int)DateTime.Now.Ticks);
 
@@ -40,7 +40,7 @@ namespace PoGo.NecroBot.Logic.Tasks
             // has passed and then resume operation. I'm not sure if this functionality
             // really is desireable though. Personally never run the but that long w/o
             // restarting anyway. Perhaps better to shutdown instead? ~moj
-            if (_catchPokemonLimitReached || _catchPokemonTimerReached) return true;
+            if (CatchPokemonLimitReached || CatchPokemonTimerReached) return true;
 
             // Check if user defined max AMOUNT of Catches reached
             if (!session.Stats.PokemonTimestamps.Any()) return false;
@@ -64,7 +64,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                 }
 
                 UpdateTimeStampsPokemon?.Invoke();
-                _catchPokemonLimitReached = true;
+                CatchPokemonLimitReached = true;
                 return true;
             }
 
@@ -86,7 +86,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                     }
                 }
                 UpdateTimeStampsPokemon?.Invoke();
-                _catchPokemonTimerReached = true;
+                CatchPokemonTimerReached = true;
                 return true;
             }
 

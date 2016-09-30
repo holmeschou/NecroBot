@@ -6,10 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Sockets;
-using System.Net.WebSockets;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -62,7 +58,6 @@ namespace PoGo.NecroBot.CLI
 
         public static async Task Start(Session session, CancellationToken cancellationToken)
         {
-
             await Task.Delay(30000);//delay running 30s
 
             System.Net.ServicePointManager.Expect100Continue = false;
@@ -75,12 +70,12 @@ namespace PoGo.NecroBot.CLI
             {
                 ws.Log.Level = WebSocketSharp.LogLevel.Fatal;
                 ws.Log.Output = (logData, message) =>
-                 {
-                     //silenly, no log exception message to screen that scare people :)
-                 };
+                {
+                    //silenly, no log exception message to screen that scare people :)
+                };
                 
                 //ws.OnMessage += (sender, e) =>
-                // Console.WriteLine("New message from controller: " + e.Data);
+                //    Console.WriteLine("New message from controller: " + e.Data);
 
                 while (true)
                 {
@@ -149,7 +144,6 @@ namespace PoGo.NecroBot.CLI
             }
 
         }
-
 
         internal static Task StartAsync(Session session, CancellationToken cancellationToken = default(CancellationToken))
         {

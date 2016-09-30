@@ -20,7 +20,7 @@ namespace PoGo.NecroBot.Logic.State
             cancellationToken.ThrowIfCancellationRequested();
 
             var coordsPath = Path.Combine(session.GlobalSettings.ProfileConfigPath, "LastPos.ini");
-            if (File.Exists(coordsPath))
+            if (!session.GlobalSettings.LocationConfig.StartFromLastPosition && File.Exists(coordsPath))
             {
                 var latLngFromFile = LoadPositionFromDisk(session);
                 if (latLngFromFile != null)
