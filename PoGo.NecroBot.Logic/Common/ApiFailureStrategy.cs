@@ -95,6 +95,11 @@ namespace PoGo.NecroBot.Logic.Common
             {
                 await Task.Delay(2000);
             }
+            catch(MinimumClientVersionException ex)
+            {
+                // Re-throw this exception since we need to exit the app.
+                throw ex;
+            }
             catch (Exception ex) when (ex is InvalidResponseException || ex is TaskCanceledException)
             {
                 await Task.Delay(1000);
@@ -103,6 +108,26 @@ namespace PoGo.NecroBot.Logic.Common
             return ApiOperation.Retry;
         }
 
+        public void HandleCaptcha(string challengeUrl, ICaptchaResponseHandler captchaResponseHandler)
+        {
+            // TODO Show captcha get token and pass it back.
+            // string token = "";
+            // captchaResponseHandler.SetCaptchaToken(token);
+
+            _session.EventDispatcher.Send(new ErrorEvent
+            {
+                Message = _session.Translation.GetTranslation(TranslationString.CaptchaShown)
+            });
+
+            _session.EventDispatcher.Send(new WarnEvent
+            {
+                Message = _session.Translation.GetTranslation(TranslationString.RequireInputText)
+            });
+
+            Console.ReadKey();
+            Environment.Exit(0);
+        }
+        
         private async void DoLogin()
         {
             try
@@ -189,6 +214,11 @@ namespace PoGo.NecroBot.Logic.Common
                 });
 
                 await Task.Delay(5000);
+            }
+            catch(MinimumClientVersionException ex)
+            {
+                // Re-throw this exception since we need to exit the app.
+                throw ex;
             }
             catch (Exception ex)
             {

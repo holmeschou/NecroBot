@@ -516,8 +516,8 @@ namespace PoGo.NecroBot.Logic.Tasks
                             action.ActionStartMs = now.ToUnixTime();
                             action.TargetIndex = -1;
                             action.ActivePokemonId = attacker.Id;
-                            action.DamageWindowsStartTimestampMss = now.ToUnixTime() - 200;
-                            action.DamageWindowsEndTimestampMss = now.ToUnixTime();
+                            action.DamageWindowsStartTimestampMs = now.ToUnixTime() - 200;
+                            action.DamageWindowsEndTimestampMs = now.ToUnixTime();
                             actions.Add(action);
                         }
                         _pos++;
@@ -555,8 +555,8 @@ namespace PoGo.NecroBot.Logic.Tasks
                             action.ActionStartMs = now.ToUnixTime();
                             action.TargetIndex = -1;
                             action.ActivePokemonId = attacker.Id;
-                            action.DamageWindowsStartTimestampMss = now.ToUnixTime() - 200;
-                            action.DamageWindowsEndTimestampMss = now.ToUnixTime();
+                            action.DamageWindowsStartTimestampMs = now.ToUnixTime() - 200;
+                            action.DamageWindowsEndTimestampMs = now.ToUnixTime();
 
 
                             actions.Add(action);
