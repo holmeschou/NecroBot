@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using PoGo.NecroBot.Logic.Event;
 using PoGo.NecroBot.Logic.Tasks;
 using PoGo.NecroBot.Logic.Common;
+using PoGo.NecroBot.Logic.Logging;
 using PokemonGo.RocketAPI.Exceptions;
 
 #endregion
