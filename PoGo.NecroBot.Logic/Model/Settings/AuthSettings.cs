@@ -155,7 +155,7 @@ namespace PoGo.NecroBot.Logic.Model.Settings
                     // iOS
                     if (DeviceConfig.DevicePackageName.Equals("random", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        var randomAppleDeviceInfo = DeviceInfoHelper.GetRandomIosDevice();
+                        var randomAppleDeviceInfo = PokemonGo.RocketAPI.Helpers.DeviceInfoHelper.GetRandomIosDevice();
                         SetDevInfoByDeviceInfo(randomAppleDeviceInfo);
                     }
                 }
@@ -174,8 +174,8 @@ namespace PoGo.NecroBot.Logic.Model.Settings
                     {
                         // Random is set, so pick a random device package and set it up - it will get saved to disk below and re-used in subsequent sessions
                         var rnd = new Random();
-                        var rndIdx = rnd.Next(0, DeviceInfoHelper.AndroidDeviceInfoSets.Keys.Count - 1);
-                        DeviceConfig.DevicePackageName = DeviceInfoHelper.AndroidDeviceInfoSets.Keys.ToArray()[rndIdx];
+                        var rndIdx = rnd.Next(0, PokemonGo.RocketAPI.Helpers.DeviceInfoHelper.AndroidDeviceInfoSets.Keys.Count - 1);
+                        DeviceConfig.DevicePackageName = PokemonGo.RocketAPI.Helpers.DeviceInfoHelper.AndroidDeviceInfoSets.Keys.ToArray()[rndIdx];
                         SetDevInfoByKey();
                     }
                 }
@@ -293,9 +293,9 @@ namespace PoGo.NecroBot.Logic.Model.Settings
 
         private void SetDevInfoByKey()
         {
-            if (DeviceInfoHelper.AndroidDeviceInfoSets.ContainsKey(DeviceConfig.DevicePackageName))
+            if (PokemonGo.RocketAPI.Helpers.DeviceInfoHelper.AndroidDeviceInfoSets.ContainsKey(DeviceConfig.DevicePackageName))
             {
-                SetDevInfoByDeviceInfo(DeviceInfoHelper.AndroidDeviceInfoSets[DeviceConfig.DevicePackageName]);
+                SetDevInfoByDeviceInfo(PokemonGo.RocketAPI.Helpers.DeviceInfoHelper.AndroidDeviceInfoSets[DeviceConfig.DevicePackageName]);
             }
             else
             {
