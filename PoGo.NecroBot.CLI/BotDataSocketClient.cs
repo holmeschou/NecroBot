@@ -152,11 +152,12 @@ namespace PoGo.NecroBot.CLI
             }
 
         }
+
         private static void onSocketMessageRecieved(ISession session, object sender, WebSocketSharp.MessageEventArgs e)
         {
             try
             {
-                var match = Regex.Match(e.Data, "42\\[\"pokemon\",(.*)]");
+                var match = System.Text.RegularExpressions.Regex.Match(e.Data, "42\\[\"pokemon\",(.*)]");
                 if (match != null && !string.IsNullOrEmpty(match.Groups[1].Value))
                 {
                     var data = JsonConvert.DeserializeObject<EncounteredEvent>(match.Groups[1].Value);
@@ -167,7 +168,6 @@ namespace PoGo.NecroBot.CLI
             catch (Exception)
             {
             }
-
         }
 
         internal static Task StartAsync(Session session, CancellationToken cancellationToken = default(CancellationToken))
