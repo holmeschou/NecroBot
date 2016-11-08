@@ -1,16 +1,17 @@
-﻿using GeoCoordinatePortable;
-using PoGo.NecroBot.Logic.Utils;
-using POGOProtos.Networking.Responses;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using PoGo.NecroBot.Logic.State;
 using System.Threading;
+using GeoCoordinatePortable;
+using POGOProtos.Networking.Responses;
 using PokemonGo.RocketAPI;
+using PoGo.NecroBot.Logic.Utils;
+using PoGo.NecroBot.Logic.State;
 using PoGo.NecroBot.Logic.Event;
 using PoGo.NecroBot.Logic.Model;
 using PoGo.NecroBot.Logic.Model.Settings;
+using PoGo.NecroBot.Logic.Logging;
 
 namespace PoGo.NecroBot.Logic.Strategies.Walk
 {
@@ -28,10 +29,12 @@ namespace PoGo.NecroBot.Logic.Strategies.Walk
         public event UpdatePositionDelegate UpdatePositionEvent;
         public abstract Task<PlayerUpdateResponse> Walk(IGeoLocation targetLocation, Func<Task> functionExecutedWhileWalking, ISession session, CancellationToken cancellationToken, double walkSpeed = 0.0);
         public virtual string RouteName {get;}
+
         public BaseWalkStrategy(Client client)
         {
             _client = client;
         }
+
         public void OnStartWalking(ISession session, IGeoLocation desination, double calculatedDistance = 0.0)
         {
             var distance = calculatedDistance;
@@ -88,7 +91,7 @@ namespace PoGo.NecroBot.Logic.Strategies.Walk
 
             //filter google defined waypoints and remove those that are too near to the previous ones
             var waypointsDists = new Dictionary<Tuple<GeoCoordinate, GeoCoordinate>, double>();
-            var minWaypointsDistance = RandomizeStepLength(_minStepLengthInMeters);
+            var minWaypointsDistance = 10; // RandomizeStepLength(_minStepLengthInMeters);
 
             for (var i = 0; i < points.Count; i++)
             {
@@ -185,13 +188,13 @@ namespace PoGo.NecroBot.Logic.Strategies.Walk
                     requestSendDateTime = DateTime.Now;
                     result = await LocationUtils.UpdatePlayerLocationWithAltitude(session, waypoint, (float)speedInMetersPerSecond);
 
-                    UpdatePositionEvent?.Invoke(waypoint.Latitude, waypoint.Longitude);
+                    DoUpdatePositionEvent(waypoint.Latitude, waypoint.Longitude);
 
                     if (functionExecutedWhileWalking != null)
                         await functionExecutedWhileWalking(); // look for pokemon
                 } while (LocationUtils.CalculateDistanceInMeters(currentLocation, nextStep) >= 2);
 
-                UpdatePositionEvent?.Invoke(nextStep.Latitude, nextStep.Longitude);
+                DoUpdatePositionEvent(nextStep.Latitude, nextStep.Longitude);
             }
 
             return result;
