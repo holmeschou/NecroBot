@@ -20,6 +20,8 @@ namespace PoGo.NecroBot.Logic.Tasks
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            if (!session.LogicSettings.TransferWeakPokemon) return;
+
             if (session.GlobalSettings.PokemonConfig.AutoFavoritePokemon)
                 await FavoritePokemonTask.Execute(session, cancellationToken);
 
