@@ -69,8 +69,10 @@ namespace PoGo.NecroBot.CLI
                         break;
                 }
             }
-
-            Logger.SetLogger(new ConsoleLogger(LogLevel.Service), _subPath);
+            
+            Logger.AddLogger(new ConsoleLogger(LogLevel.Service), _subPath);
+            Logger.AddLogger(new FileLogger(LogLevel.Service), _subPath);
+            Logger.AddLogger(new WebSocketLogger(LogLevel.Service), _subPath);
 
             var profilePath = Path.Combine(Directory.GetCurrentDirectory(), _subPath);
             var profileConfigPath = Path.Combine(profilePath, "config");
