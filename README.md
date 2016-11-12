@@ -1,7 +1,6 @@
-<h1>Pokémon Go 0.43 API Works!
+<h1>Pokémon Go 0.45 API is now Supported!
 </h1>
 <strong>
-We are now compatible with Pokemon Go API 0.43!!
 </strong>
 
 <p align="center">
@@ -9,6 +8,14 @@ We are now compatible with Pokemon Go API 0.43!!
 <a href="">
     <img alt="Logo" src="http://image.prntscr.com/image/b238b63b4f044813a91f772241be8d45.jpg" width="600">
 </a>
+
+<h2>Screenshots</h2>
+Gui App
+<img src="http://i.imgur.com/Ph1sU94r.png"/>
+<img src="http://i.imgur.com/4Dj2RjNr.png"/>
+Console App
+<img src="http://i.imgur.com/z6UfTm8.png"/>
+
 
 <strong><em> The contents of this repo are a proof of concept and are for educational use only </em></strong>
 <h4>Join to Discord</h4>
