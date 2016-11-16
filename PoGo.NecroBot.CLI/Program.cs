@@ -218,8 +218,6 @@ namespace PoGo.NecroBot.CLI
             _session.Navigation.WalkStrategy.UpdatePositionEvent +=
                 (lat, lng) => _session.EventDispatcher.Send(new UpdatePositionEvent { Latitude = lat, Longitude = lng });
             _session.Navigation.WalkStrategy.UpdatePositionEvent += SaveLocationToDisk;
-            UseNearbyPokestopsTask.UpdateTimeStampsPokestop += SaveTimeStampsPokestopToDisk;
-            CatchPokemonTask.UpdateTimeStampsPokemon += SaveTimeStampsPokemonToDisk;
 
             settings.Auth.CheckProxy(_session.Translation);
 
@@ -237,7 +235,14 @@ namespace PoGo.NecroBot.CLI
 
             if (_session.GlobalSettings.SnipeConfig.UseSnipeLocationServer ||
                 _session.GlobalSettings.HumanWalkSnipeConfig.UsePogoLocationFeeder)
+			{
                 SnipePokemonTask.AsyncStart(_session);
+			}
+
+            if (_session.GlobalSettings.SnipeConfig.ActivateMSniper)
+            {
+                MSniperServiceTask.ConnectToService();
+            }
 
             QuitEvent.WaitOne();
 
@@ -254,29 +259,6 @@ namespace PoGo.NecroBot.CLI
         {
             var coordsPath = Path.Combine(_session.GlobalSettings.ProfileConfigPath, "LastPos.ini");
             File.WriteAllText(coordsPath, $"{lat}:{lng}");
-        }
-
-        private static void SaveTimeStampsPokestopToDisk()
-        {
-            if (_session == null) return;
-
-            var path = Path.Combine(_session.GlobalSettings.ProfileConfigPath, "PokestopTS.txt");
-            var fileContent = _session.Stats.PokeStopTimestamps.Select(t => t.ToString()).ToList();
-
-            if (fileContent.Count > 0)
-                File.WriteAllLines(path, fileContent.ToArray());
-        }
-
-        private static void SaveTimeStampsPokemonToDisk()
-        {
-            if (_session == null) return;
-
-            var path = Path.Combine(_session.GlobalSettings.ProfileConfigPath, "PokemonTS.txt");
-
-            var fileContent = _session.Stats.PokemonTimestamps.Select(t => t.ToString()).ToList();
-
-            if (fileContent.Count > 0)
-                File.WriteAllLines(path, fileContent.ToArray());
         }
 
         private static void UnhandledExceptionEventHandler(object obj, UnhandledExceptionEventArgs args)

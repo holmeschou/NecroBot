@@ -40,14 +40,14 @@ namespace PoGo.NecroBot.Logic.State
             GlobalSettings = globalSettings;
             Translation = translation;
 
-            Client = new Client(Settings, new ApiFailureStrategy(this));
+            Client = new Client(Settings);
             Inventory = new Inventory(Client, GlobalSettings);
             Navigation = new Navigation(Client, GlobalSettings);
 
             EventDispatcher = new EventDispatcher();
 
             Forts = new List<FortData>();
-            Stats = new SessionStats();
+            Stats = new SessionStats(this);
         }
 
         public ISettings Settings { get; set; }

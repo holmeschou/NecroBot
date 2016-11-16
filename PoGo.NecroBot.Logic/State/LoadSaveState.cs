@@ -82,66 +82,9 @@ namespace PoGo.NecroBot.Logic.State
                     });
                 }
             }
+            
+            await Task.Delay(3000, cancellationToken);
 
-            List<Int64> list = new List<Int64>();
-            // for pokestops
-            try
-            {
-                var path = Path.Combine(session.GlobalSettings.ProfileConfigPath, "PokestopTS.txt");
-                if (File.Exists(path))
-                {
-                    var content = File.ReadLines(path);
-                    foreach (var c in content)
-                    {
-                        if (c.Length > 0)
-                        {
-                            list.Add(Convert.ToInt64(c));
-                        }
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                session.EventDispatcher.Send(new ErrorEvent
-                {
-                    Message = "Garbage information in PokestopTS.txt"
-                });
-            }
-            foreach (var l in list)
-            {
-                session.Stats.PokeStopTimestamps.Add(l);
-            }
-
-            // for pokemons
-            list = new List<Int64>();
-            try
-            {
-                var path = Path.Combine(session.GlobalSettings.ProfileConfigPath, "PokemonTS.txt");
-                if (File.Exists(path))
-                {
-                    var content = File.ReadLines(path);
-                    foreach (var c in content)
-                    {
-                        if (c.Length > 0)
-                        {
-                            list.Add(Convert.ToInt64(c));
-                        }
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                session.EventDispatcher.Send(new ErrorEvent
-                {
-                    Message = "Garbage information in PokemonTS.txt"
-                });
-            }
-            foreach (var l in list)
-            {
-                session.Stats.PokemonTimestamps.Add(l);
-            }
-
-            await Task.Delay(100, cancellationToken);
             return new InfoState();
         }
 
