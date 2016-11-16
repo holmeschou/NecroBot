@@ -86,7 +86,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                     }
                     break;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     //Logger.Write("service: " +e.Message, LogLevel.Error);
                     Thread.Sleep(500);
@@ -146,7 +146,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                         break;
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
             }
         }

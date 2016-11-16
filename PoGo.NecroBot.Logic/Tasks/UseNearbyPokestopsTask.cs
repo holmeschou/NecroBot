@@ -29,6 +29,8 @@ namespace PoGo.NecroBot.Logic.Tasks
         private static Random _rc; //initialize pokestop random cleanup counter first time
         private static int _storeRi;
         private static int _randomNumber;
+        public static bool _pokestopLimitReached;
+        public static bool _pokestopTimerReached;
 
         internal static void Initialize()
         {
@@ -37,21 +39,21 @@ namespace PoGo.NecroBot.Logic.Tasks
             _rc = new Random();
             _storeRi = _rc.Next(8, 15);
             _randomNumber = _rc.Next(4, 11);
-            PokestopLimitReached = false;
-            PokestopTimerReached = false;
+            _pokestopLimitReached = false;
+            _pokestopTimerReached = false;
         }
 
         private static bool SearchThresholdExceeds(ISession session)
         {
             if (!session.GlobalSettings.PokeStopConfig.UsePokeStopLimit) return false;
-            if (PokestopLimitReached || PokestopTimerReached) return true;
+            if (_pokestopLimitReached || _pokestopTimerReached) return true;
 
             session.Stats.CleanOutExpiredStats();
 
             // Check if user defined max Pokestops reached
             var timeDiff = (DateTime.Now - session.Stats.StartTime);
 
-            if (session.Stats.GetNumPokestopsInLast24Hours() >= session.LogicSettings.PokeStopLimit)
+            if (session.Stats.GetNumPokestopsInLast24Hours() >= session.GlobalSettings.PokeStopConfig.PokeStopLimit)
             {
                 session.EventDispatcher.Send(new ErrorEvent
                 {
@@ -87,8 +89,8 @@ namespace PoGo.NecroBot.Logic.Tasks
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 // Exit this task if both catching and looting has reached its limits
-                if ((UseNearbyPokestopsTask.PokestopLimitReached || UseNearbyPokestopsTask.PokestopTimerReached) &&
-                    (CatchPokemonTask.CatchPokemonLimitReached || CatchPokemonTask.CatchPokemonTimerReached))
+                if ((UseNearbyPokestopsTask._pokestopLimitReached || UseNearbyPokestopsTask._pokestopTimerReached) &&
+                    (CatchPokemonTask._catchPokemonLimitReached || CatchPokemonTask._catchPokemonTimerReached))
                     return;
 
                 var fortInfo = pokeStop.Id == SetMoveToTargetTask.TARGET_ID ? SetMoveToTargetTask.FortInfo : await session.Client.Fort.GetFort(pokeStop.Id, pokeStop.Latitude, pokeStop.Longitude);
@@ -164,7 +166,7 @@ namespace PoGo.NecroBot.Logic.Tasks
             if (!session.GlobalSettings.GPXConfig.UseGpxPathing)
             {
                 // Spin as long as we haven't reached the user defined limits
-                if (!PokestopLimitReached && !PokestopTimerReached)
+                if (!_pokestopLimitReached && !_pokestopTimerReached)
                 {
                     await SpinPokestopNearBy(session, cancellationToken, pokeStop);
                 }
@@ -294,7 +296,7 @@ namespace PoGo.NecroBot.Logic.Tasks
             }
 
             // Spin as long as we haven't reached the user defined limits
-            if (!PokestopLimitReached && !PokestopTimerReached)
+            if (!_pokestopLimitReached && !_pokestopTimerReached)
             {
                 await FarmPokestop(session, pokeStop, fortInfo, cancellationToken, doNotTrySpin);
             }
@@ -425,7 +427,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                     if (session.GlobalSettings.PokeStopConfig.UsePokeStopLimit)
                     {
                         session.Stats.AddPokestopTimestamp(DateTime.Now.Ticks);
-                        Logger.Write($"(POKESTOP LIMIT) {session.Stats.GetNumPokestopsInLast24Hours()}/{session.LogicSettings.PokeStopLimit}",
+                        Logger.Write($"(POKESTOP LIMIT) {session.Stats.GetNumPokestopsInLast24Hours()}/{session.GlobalSettings.PokeStopConfig.PokeStopLimit}",
                             LogLevel.Info, ConsoleColor.Yellow);
                     }
                     break; //Continue with program as loot was succesfull.

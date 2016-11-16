@@ -40,7 +40,7 @@ namespace PoGo.NecroBot.Logic.State
             GlobalSettings = globalSettings;
             Translation = translation;
 
-            Client = new Client(Settings, new ApiFailureStrategy(this));
+            Client = new Client(Settings);
             Inventory = new Inventory(Client, GlobalSettings);
             Navigation = new Navigation(Client, GlobalSettings);
 

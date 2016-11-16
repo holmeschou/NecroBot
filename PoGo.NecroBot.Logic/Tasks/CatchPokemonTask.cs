@@ -37,14 +37,14 @@ namespace PoGo.NecroBot.Logic.Tasks
             // has passed and then resume operation. I'm not sure if this functionality
             // really is desireable though. Personally never run the but that long w/o
             // restarting anyway. Perhaps better to shutdown instead? ~moj
-            if (CatchPokemonLimitReached || CatchPokemonTimerReached) return true;
+            if (_catchPokemonLimitReached || _catchPokemonTimerReached) return true;
 
             session.Stats.CleanOutExpiredStats();
 
             var timeDiff = (DateTime.Now - session.Stats.StartTime);
             
             // Check if user defined max AMOUNT of Catches reached
-            if (session.Stats.GetNumPokemonsInLast24Hours() >= session.LogicSettings.CatchPokemonLimit)
+            if (session.Stats.GetNumPokemonsInLast24Hours() >= session.GlobalSettings.PokemonConfig.CatchPokemonLimit)
             {
                 session.EventDispatcher.Send(new ErrorEvent
                 {
@@ -351,7 +351,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                         if (session.GlobalSettings.PokemonConfig.UseCatchLimit)
                         {
                             session.Stats.AddPokemonTimestamp(DateTime.Now.Ticks);
-                            Logger.Write($"(CATCH LIMIT) {session.Stats.GetNumPokemonsInLast24Hours()}/{session.LogicSettings.CatchPokemonLimit}",
+                            Logger.Write($"(CATCH LIMIT) {session.Stats.GetNumPokemonsInLast24Hours()}/{session.GlobalSettings.PokemonConfig.CatchPokemonLimit}",
                                 LogLevel.Info, ConsoleColor.Yellow);
                         }
                     }

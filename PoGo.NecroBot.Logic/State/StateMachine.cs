@@ -43,8 +43,8 @@ namespace PoGo.NecroBot.Logic.State
                     state = await state.Execute(session, cancellationToken);
 
                     // Exit the bot if both catching and looting has reached its limits
-                    if ((UseNearbyPokestopsTask.PokestopLimitReached || UseNearbyPokestopsTask.PokestopTimerReached) &&
-                        (CatchPokemonTask.CatchPokemonLimitReached || CatchPokemonTask.CatchPokemonTimerReached))
+                    if ((UseNearbyPokestopsTask._pokestopLimitReached || UseNearbyPokestopsTask._pokestopTimerReached) &&
+                        (CatchPokemonTask._catchPokemonLimitReached || CatchPokemonTask._catchPokemonTimerReached))
                     {
                         session.EventDispatcher.Send(new ErrorEvent
                         {

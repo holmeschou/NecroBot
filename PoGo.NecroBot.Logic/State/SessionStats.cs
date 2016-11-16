@@ -40,7 +40,7 @@ namespace PoGo.NecroBot.Logic.State
 
         public void InitializeDatabase(ISession session)
         {
-            var path = Path.Combine(session.LogicSettings.ProfileConfigPath, DB_NAME);
+            var path = Path.Combine(session.GlobalSettings.ProfileConfigPath, DB_NAME);
             db = new LiteDatabase(path);
             pokestopTimestampCollection = db.GetCollection<PokeStopTimestamp>(POKESTOP_STATS_COLLECTION);
             pokemonTimestampCollection = db.GetCollection<PokemonTimestamp>(POKEMON_STATS_COLLECTION);
@@ -93,7 +93,7 @@ namespace PoGo.NecroBot.Logic.State
             // for pokestops
             try
             {
-                var path = Path.Combine(session.LogicSettings.ProfileConfigPath, "PokestopTS.txt");
+                var path = Path.Combine(session.GlobalSettings.ProfileConfigPath, "PokestopTS.txt");
                 if (File.Exists(path))
                 {
                     var content = File.ReadLines(path);
@@ -124,7 +124,7 @@ namespace PoGo.NecroBot.Logic.State
             list = new List<Int64>();
             try
             {
-                var path = Path.Combine(session.LogicSettings.ProfileConfigPath, "PokemonTS.txt");
+                var path = Path.Combine(session.GlobalSettings.ProfileConfigPath, "PokemonTS.txt");
                 if (File.Exists(path))
                 {
                     var content = File.ReadLines(path);
