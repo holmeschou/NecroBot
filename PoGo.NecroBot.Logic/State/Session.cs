@@ -47,7 +47,7 @@ namespace PoGo.NecroBot.Logic.State
             EventDispatcher = new EventDispatcher();
 
             Forts = new List<FortData>();
-            Stats = new SessionStats();
+            Stats = new SessionStats(this);
         }
 
         public ISettings Settings { get; set; }

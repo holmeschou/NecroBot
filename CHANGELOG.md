@@ -1,5 +1,30 @@
 # Change Log
 
+## [v1.0.0.19](https://github.com/Necrobot-Private/NecroBot/tree/v1.0.0.19) (2016-11-14)
+[Full Changelog](https://github.com/Necrobot-Private/NecroBot/compare/v1.0.0.18...v1.0.0.19)
+
+- Fixes #336 - Re-designed pokestop and pokemon limit to be a rolling limit over past 24 hours. Also fixed the limits being double-counted whenever the bot relogged.
+
+## [v1.0.0.18](https://github.com/Necrobot-Private/NecroBot/tree/v1.0.0.18) (2016-11-14)
+[Full Changelog](https://github.com/Necrobot-Private/NecroBot/compare/v1.0.0.17...v1.0.0.18)
+
+**Fixed bugs:**
+
+- Fixes #310 - PTC auth token refresh bug.
+
+## [v1.0.0.17](https://github.com/Necrobot-Private/NecroBot/tree/v1.0.0.17) (2016-11-14)
+[Full Changelog](https://github.com/Necrobot-Private/NecroBot/compare/v1.0.0.16...v1.0.0.17)
+
+**Feature:**
+
+- signalr integration for new msniper.com
+
+## [v1.0.0.16](https://github.com/Necrobot-Private/NecroBot/tree/v1.0.0.16) (2016-11-11)
+[Full Changelog](https://github.com/Necrobot-Private/NecroBot/compare/v1.0.0.15...v1.0.0.16)
+
+**Fixed bugs:**
+
+- Support for 0.45 API
 
 ## [v1.0.0.15](https://github.com/Necrobot-Private/NecroBot/tree/v1.0.0.15) (2016-11-08)
 [Full Changelog](https://github.com/Necrobot-Private/NecroBot/compare/v1.0.0.14...v1.0.0.15)
