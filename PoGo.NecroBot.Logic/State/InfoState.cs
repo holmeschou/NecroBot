@@ -16,7 +16,7 @@ namespace PoGo.NecroBot.Logic.State
 
             await DisplayPokemonStatsTask.Execute(session);
 
-            return new CheckTosState();
+            return new FarmState();
         }
     }
 }

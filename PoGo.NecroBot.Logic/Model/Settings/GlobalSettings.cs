@@ -19,6 +19,7 @@ using PoGo.NecroBot.Logic.State;
 using PokemonGo.RocketAPI.Enums;
 using POGOProtos.Enums;
 using PoGo.NecroBot.Logic.Service.Elevation;
+using PokemonGo.RocketAPI.Extensions;
 
 #endregion
 
@@ -258,6 +259,9 @@ namespace PoGo.NecroBot.Logic.Model.Settings
                                     LogLevel.Warning);
                                 Console.ReadKey();
                             }
+
+                            // Now we know it's valid so update input with the migrated version.
+                            input = jsonObj.ToString();
                         }
 
                         settings = JsonConvert.DeserializeObject<GlobalSettings>(input, jsonSettings);
@@ -306,11 +310,65 @@ namespace PoGo.NecroBot.Logic.Model.Settings
             if (!boolSkipSave)
             {
                 settings.Save(configFile);
+                settings.Auth.Load(Path.Combine(profileConfigPath, "auth.json"), boolSkipSave, validate);
             }
 
-            settings.Auth.Load(Path.Combine(profileConfigPath, "auth.json"), boolSkipSave, validate);
-
             return shouldExit ? null : settings;
+        }
+
+        private static void MigrateSettings(JObject settings, string configFile, string schemaFile)
+        {
+            if (settings["UpdateConfig"]?["SchemaVersion"] == null)
+            {
+                // The is the first time setup for old config.json files without the SchemaVersion.
+                // Just set this to 0 so that we can handle the upgrade in case 0.
+                settings["UpdateConfig"]["SchemaVersion"] = 0;
+            }
+
+            int schemaVersion = (int)settings["UpdateConfig"]["SchemaVersion"];
+            if (schemaVersion == UpdateConfig.CURRENT_SCHEMA_VERSION)
+            {
+                Logger.Write("Configuration is up-to-date. Schema version: " + schemaVersion);
+                return;
+            }
+
+            // Backup old config file.
+            long ts = DateTime.UtcNow.ToUnixTime(); // Add timestamp to avoid file conflicts
+            string backupPath = configFile.Replace(".json", $"-{schemaVersion}-{ts}.backup.json");
+            Logger.Write($"Backing up config.json to: {backupPath}", LogLevel.Info);
+            File.Copy(configFile, backupPath);
+
+            // Add future schema migrations below.
+            int version;
+            for (version = schemaVersion; version < UpdateConfig.CURRENT_SCHEMA_VERSION; version++)
+            {
+                Logger.Write($"Migrating configuration from schema version {version} to {version + 1}", LogLevel.Info);
+                switch(version)
+                {
+                    case 1:
+                        // Delete the auto complete tutorial settings.
+                        ((JObject)settings["PlayerConfig"]).Remove("AutoCompleteTutorial");
+                        ((JObject)settings["PlayerConfig"]).Remove("DesiredNickname");
+                        ((JObject)settings["PlayerConfig"]).Remove("DesiredGender");
+                        ((JObject)settings["PlayerConfig"]).Remove("DesiredStarter");
+                        break;
+
+                    case 2:
+                        // Remove the TransferConfigAndAuthOnUpdate setting since we always transfer now.
+                        ((JObject)settings["UpdateConfig"]).Remove("TransferConfigAndAuthOnUpdate");
+                        break;
+
+                    // Add more here.
+                }
+            }
+
+            // After migration we need to update the schema version to the latest version.
+            settings["UpdateConfig"]["SchemaVersion"] = UpdateConfig.CURRENT_SCHEMA_VERSION;
+        }
+
+        public void CheckProxy(ITranslation translator)
+        {
+            Auth.CheckProxy(translator);
         }
 
         private void Save(string fullPath)
@@ -329,7 +387,121 @@ namespace PoGo.NecroBot.Logic.Model.Settings
             //JsonSchema
             //File.WriteAllText(fullPath.Replace(".json", ".schema.json"), JsonSchema.ToString(), Encoding.UTF8);
 
-            return;
+            // validate Json using JsonSchema
+            Logger.Write("Validating config.json...");
+            var jsonObj = JObject.Parse(output);
+            IList<ValidationError> errors;
+            var valid = jsonObj.IsValid(JsonSchema, out errors);
+            if (valid) return;
+            foreach (var error in errors)
+            {
+                Logger.Write(
+                    "config.json [Line: " + error.LineNumber + ", Position: " + error.LinePosition + "]: " + error.Path +
+                    " " +
+                    error.Message, LogLevel.Error);
+                //"Default value is '" + error.Schema.Default + "'"
+            }
+            Logger.Write("Fix config.json and restart NecroBot or press a key to ignore and continue...",
+                LogLevel.Warning);
+            Console.ReadKey();
+        }
+
+        public static bool PromptForBoolean(ITranslation translator, string initialPrompt, string errorPrompt = null)
+        {
+            while (true)
+            {
+                Logger.Write(initialPrompt, LogLevel.Info);
+                var strInput = Console.ReadLine().ToLower();
+
+                switch (strInput)
+                {
+                    case "y":
+                        return true;
+                    case "n":
+                        return false;
+                    default:
+                        if (string.IsNullOrEmpty(errorPrompt))
+                            errorPrompt = translator.GetTranslation(TranslationString.PromptError, "y", "n");
+
+                        Logger.Write(errorPrompt, LogLevel.Error);
+                        continue;
+                }
+            }
+        }
+
+        public static double PromptForDouble(ITranslation translator, string initialPrompt, string errorPrompt = null)
+        {
+            while (true)
+            {
+                Logger.Write(initialPrompt, LogLevel.Info);
+                var strInput = Console.ReadLine();
+
+                double doubleVal;
+                if (double.TryParse(strInput, out doubleVal))
+                {
+                    return doubleVal;
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(errorPrompt))
+                        errorPrompt = translator.GetTranslation(TranslationString.PromptErrorDouble);
+
+                    Logger.Write(errorPrompt, LogLevel.Error);
+                }
+            }
+        }
+
+        public static int PromptForInteger(ITranslation translator, string initialPrompt, string errorPrompt = null)
+        {
+            while (true)
+            {
+                Logger.Write(initialPrompt, LogLevel.Info);
+                var strInput = Console.ReadLine();
+
+                int intVal;
+                if (int.TryParse(strInput, out intVal))
+                {
+                    return intVal;
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(errorPrompt))
+                        errorPrompt = translator.GetTranslation(TranslationString.PromptErrorInteger);
+
+                    Logger.Write(errorPrompt, LogLevel.Error);
+                }
+            }
+        }
+
+        public static string PromptForString(ITranslation translator, string initialPrompt, string[] validStrings = null, string errorPrompt = null, bool caseSensitive = true)
+        {
+            while (true)
+            {
+                Logger.Write(initialPrompt, LogLevel.Info);
+                // For now this just reads from the console, but in the future, we may change this to read from the GUI.
+                string strInput = Console.ReadLine();
+
+                if (!caseSensitive)
+                    strInput = strInput.ToLower();
+
+                // If no valid strings to validate, then return immediately.
+                if (validStrings == null)
+                    return strInput;
+
+                // Validate string
+                foreach (string validString in validStrings)
+                {
+                    if (String.Equals(strInput, validString, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase))
+                        return strInput;
+                }
+
+                // If we got here, no valid strings.
+                if (string.IsNullOrEmpty(errorPrompt))
+                {
+                    errorPrompt = translator.GetTranslation(TranslationString.PromptErrorString, string.Join(",", validStrings));
+                }
+                Logger.Write(errorPrompt, LogLevel.Error);
+            }
         }
     }
 }
